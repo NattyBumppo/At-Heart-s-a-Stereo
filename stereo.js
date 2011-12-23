@@ -167,11 +167,11 @@ function drawCenter()
     else
     {
         // Draw Pause Button
-        //context.fillRect();
-        //context.strokeRect();
+        context.fillRect(playButtonRectangle[0], playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
+        context.strokeRect(playButtonRectangle[0], playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
 
-        //context.fillRect();
-        //context.strokeRect();
+        context.fillRect(playButtonRectangle[0] + playButtonRectangle[2] / 2 + 4, playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
+        context.strokeRect(playButtonRectangle[0] + playButtonRectangle[2] / 2 + 4, playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
 
     }
 
@@ -319,10 +319,21 @@ function onClick(e)
     switch(getClickedObject(e))
     {
         case "playButton":
-            alert("play button clicked!");
+            // alert("play button clicked!");
+            if (isPlaying)
+            {
+                // Switch to paused
+                isPlaying = false;
+            }
+            else
+            {
+                // Switch to playing
+                isPlaying = true;
+            }
+
             break;
         case "stopButton":
-            alert("stop button clicked!");
+            // alert("stop button clicked!");
             break;
         default:
             // alert("Other click");
