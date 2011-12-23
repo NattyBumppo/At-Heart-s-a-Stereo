@@ -14,11 +14,15 @@ var timeStep = 16;
 var backgroundColor = "#000000";
 var centerColor = "#444444";
 var barLabelColor = "#FFFFFF";
-var barLabelFont = "16px sans-serif";
+var barLabelFont = "12px sans-serif";
 var barLabelShadowOffsetX = 1;
 var barLabelShadowOffsetY = 1;
 var barLabelShadowBlur = 4;
 var barLabelShadowColor = "#000000";
+var buttonOutlineColor = "#FFFFFF";
+var buttonInsideColor = "#AAAAAA";
+var buttonOutlineThickness = 1;
+var isPlaying = false;
 var centerHeight = 30;
 var centerLeftHorizontalMargin = 60;
 var centerRightHorizontalMargin = 20;
@@ -28,6 +32,8 @@ function initDraw()
 {
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d");
+
+    canvas.addEventListener("click", onClick, false);
 
     return setInterval(process, timeStep);
 }
@@ -134,6 +140,51 @@ function drawCenter()
     context.fillStyle = centerColor;
     context.fillRect(0, centerPos - centerHeight / 2, centerWidth, centerHeight);
 
+    // Draw buttons
+    var playButtonRectangle = new Array(4, centerPos - centerHeight / 2 + 6, centerHeight - 12, centerHeight - 12);
+    var stopButtonRectangle = new Array(4 + centerHeight, centerPos - centerHeight / 2 + 6, centerHeight - 12, centerHeight - 12);
+
+    // Play/pause button
+    context.strokeStyle = buttonOutlineColor;
+    context.fillStyle = buttonInsideColor;
+    context.lineWidth = buttonOutlineThickness;
+
+    if(!isPlaying)
+    {
+        // Draw Play Button
+        context.beginPath();
+        context.moveTo(playButtonRectangle[0], playButtonRectangle[1]);
+        context.lineTo(playButtonRectangle[0] + playButtonRectangle[2], playButtonRectangle[1] + playButtonRectangle[3] / 2)
+        context.lineTo(playButtonRectangle[0], playButtonRectangle[1] + playButtonRectangle[3]);
+        context.lineTo(playButtonRectangle[0], playButtonRectangle[1]);
+
+        context.fill();
+        context.stroke();
+        context.closePath();
+    }
+    else
+    {
+        // Draw Pause Button
+        //context.fillRect();
+        //context.strokeRect();
+
+        //context.fillRect();
+        //context.strokeRect();
+
+    }
+
+    // Draw Stop Button
+    context.beginPath();
+    context.moveTo(stopButtonRectangle[0], stopButtonRectangle[1]);
+    context.lineTo(stopButtonRectangle[0] + stopButtonRectangle[2], stopButtonRectangle[1]);
+    context.lineTo(stopButtonRectangle[0] + stopButtonRectangle[2], stopButtonRectangle[1] + stopButtonRectangle[3]);
+    context.lineTo(stopButtonRectangle[0], stopButtonRectangle[1] + stopButtonRectangle[3]);
+    context.lineTo(stopButtonRectangle[0], stopButtonRectangle[1]);
+
+    context.fill();
+    context.stroke();
+    context.closePath();
+
 }
 
 // Draws all of the on-screen text for the application
@@ -209,5 +260,69 @@ function getBoxColor(boxNo, maxBoxes)
     colorString = ( "0" + red.toString(16)).slice(-2) + ( "0" + green.toString(16)).slice(-2) + ( "0" + blue.toString(16)).slice(-2);
 
     return colorString;
+
+}
+
+// Mouse click event listener
+function onClick(e)
+{
+    switch(getClickedObject(e))
+    {
+        case "playButton":
+            alert("play button clicked!");
+            break;
+        case "stopButton":
+            alert("stop button clicked!");
+            break;
+        default:
+            // alert("Other click");
+    }
+
+}
+
+// Parse mouse click to figure out which on-screen object was clicked
+function getClickedObject(e)
+{
+
+    var canvas = document.getElementById("stereo-canvas");
+    var context = canvas.getContext("2d");
+
+    var centerPos = canvas.height / 2;
+    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerLeftHorizontalMargin + centerRightHorizontalMargin;
+
+
+    var posX;
+    var posY;
+
+    // Need to check pageX and clientX for cross-browser compatibility
+    if (e.pageX || e.pageY)
+    {
+        posX = e.pageX;
+        posY = e.pageY;
+        // alert("Set using pageX/Y");
+    }   
+    else if (e.clientX || e.clientY)
+    {
+        posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+        // alert("Set using clientX/Y");
+    }
+
+    // Correct using canvas offset
+    posX -= canvas.offsetLeft;
+    posY -= canvas.offsetTop;
+
+    // alert("Click at (" + posX + ", " + posY + ")"); 
+    if (((posX >= 4) && (posX <= 4 + centerHeight - 12)) && ((posY >= centerPos - centerHeight / 2 + 6) && (posY <= centerPos + centerHeight / 2 + - 6)))
+    {
+        return "playButton";
+    }
+
+    if (((posX >= 4 + centerHeight) && (posX <= 2 * centerHeight - 8)) && ((posY >= centerPos - centerHeight / 2 + 6) && (posY <= centerPos + centerHeight / 2 + - 6)))
+    {
+        return "stopButton";
+    }
+
+    return "";
 
 }
