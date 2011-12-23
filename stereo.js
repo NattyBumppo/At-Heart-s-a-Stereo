@@ -156,13 +156,15 @@ function drawText()
     context.shadowBlur = barLabelShadowBlur;
     context.shadowColor = barLabelShadowColor;
 
+    var labelArray = new Array("Macedonia", "Malta", "Moldova", "Monaco", "Montenegro", "The Netherlands", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "Ukraine");
+
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
         // Adding 0.5 to the position allows the text to be properly centered
         var x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
         var y = centerPos;
-        context.fillText("testing", x, y, boxWidth);
+        context.fillText(labelArray[barNo], x, y, boxWidth);
     }
 
     // Reset shadows
