@@ -20,7 +20,8 @@ var barLabelShadowOffsetY = 1;
 var barLabelShadowBlur = 4;
 var barLabelShadowColor = "#000000";
 var centerHeight = 30;
-var centerHorizontalMargin = 20;
+var centerLeftHorizontalMargin = 60;
+var centerRightHorizontalMargin = 20;
 
 
 function initDraw()
@@ -103,7 +104,7 @@ function drawBar(barNo, level, maxLevel, maxBoxes)
 
     for(boxNo = 0; boxNo < boxesToLight; boxNo++)
     {
-        x = centerHorizontalMargin + (boxWidth + spaceBetweenBars) * barNo;
+        x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * barNo;
 
 
         var centerPos = canvas.height / 2;
@@ -128,7 +129,7 @@ function drawCenter()
     var context = canvas.getContext("2d");
 
     var centerPos = canvas.height / 2;
-    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerHorizontalMargin * 2;
+    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerLeftHorizontalMargin + centerRightHorizontalMargin;
 
     context.fillStyle = centerColor;
     context.fillRect(0, centerPos - centerHeight / 2, centerWidth, centerHeight);
@@ -143,7 +144,7 @@ function drawText()
     
     // Draw bar labels
     var centerPos = canvas.height / 2;
-    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerHorizontalMargin * 2;
+    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerLeftHorizontalMargin + centerRightHorizontalMargin;
 
     context.fillStyle = barLabelColor;    
     context.font = barLabelFont;
@@ -159,7 +160,7 @@ function drawText()
     for(barNo = 0; barNo < numBars; barNo++)
     {
         // Adding 0.5 to the position allows the text to be properly centered
-        var x = centerHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
+        var x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
         var y = centerPos;
         context.fillText("testing", x, y, boxWidth);
     }
