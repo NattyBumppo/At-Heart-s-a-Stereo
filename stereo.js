@@ -29,6 +29,7 @@ var centerRightHorizontalMargin = 20;
 var leftBarOffset = 0;
 var leftBarWidth = 54;
 var leftBarColor = "#333333";
+var leftBarHeight = maxBoxes * (boxHeight + spaceBetweenBoxes) + 20;
 
 function initDraw()
 {
@@ -196,8 +197,6 @@ function drawLeftBar()
     
     var centerPos = canvas.height / 2;
 
-    var leftBarHeight = 200;
-
     context.fillStyle = leftBarColor;
 
     // Draw top half of bar
@@ -241,14 +240,13 @@ function drawText()
 
 
     // Draw axis labels
-    var topLabel = "More Employment";
+    var topLabel = "More Unemployment";
     var bottomLabel = "Less Employment";
-    var leftBarHeight = 200;
 
     // Save context to restore later
     context.save();
-    // Draw top text at the center of the top left bar
-    context.translate(leftBarOffset + leftBarWidth / 2, centerPos - leftBarHeight / 2);
+    // Draw top text at the vertical center of the top left bar, and in the left half
+    context.translate(leftBarOffset + leftBarWidth / 4, centerPos - centerHeight / 2 - leftBarHeight / 2);
     // Rotate pi/2 (90 degrees) counterclockwise
     context.rotate(-Math.PI/2);
     // Draw top text
@@ -257,12 +255,11 @@ function drawText()
     // Restore context to how it was before
     context.restore();
     
-
     // Save context to restore later
     context.save();
 
-    // Draw bottom text at the center of the bottom left bar
-    context.translate(leftBarOffset + leftBarWidth / 2, centerPos + leftBarHeight / 2);
+    // Draw bottom text at the vertical center of the bottom left bar, and in the left half
+    context.translate(leftBarOffset + leftBarWidth / 4, centerPos + centerHeight / 2 +  + leftBarHeight / 2);
     // Rotate pi/2 (90 degrees) counterclockwise
     context.rotate(-Math.PI/2);
     // Draw bottom text
