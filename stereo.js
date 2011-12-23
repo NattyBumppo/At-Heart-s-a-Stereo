@@ -13,6 +13,12 @@ var spaceBetweenBars = 4;
 var timeStep = 16;
 var backgroundColor = "#000000";
 var centerColor = "#444444";
+var barLabelColor = "#FFFFFF";
+var barLabelFont = "16px sans-serif";
+var barLabelShadowOffsetX = 1;
+var barLabelShadowOffsetY = 1;
+var barLabelShadowBlur = 4;
+var barLabelShadowColor = "#000000";
 var centerHeight = 30;
 var centerHorizontalMargin = 20;
 
@@ -41,17 +47,26 @@ function draw(numBars, barNo, maxLevel)
     var context = canvas.getContext("2d")
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw bars
+
+    drawBars(numBars, maxLevel);
+
+    drawCenter();
+
+    drawText();
+}
+
+function drawBars(numBars, maxLevel)
+{
+
+    var canvas = document.getElementById("stereo-canvas");
+    var context = canvas.getContext("2d")
+
+    var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
-        // level += 10 * testSign;
-        // if (level > maxLevel){ testSign *= -1; }
-
-        // if (level < 0){ testSign *= -1; }
-
 
         level += 3 * testSign;
+
         // If the level is beyond the maximum level, and positive,
         // make it start going start
         if (level > maxLevel)
@@ -67,25 +82,15 @@ function draw(numBars, barNo, maxLevel)
         }
 
         drawBar(barNo, level, maxLevel, maxBoxes);
-        // testSign *= -1;
     }
-
-    // Draw center
-    var centerPos = canvas.height / 2;
-    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerHorizontalMargin * 2;
-
-    context.fillStyle = centerColor;
-    context.fillRect(0, centerPos - centerHeight / 2, centerWidth, centerHeight);
-
 }
+
 
 // Maps level to a box level, and draws it
 function drawBar(barNo, level, maxLevel, maxBoxes)
 {
-    // alert("barNo, level, sign, maxLevel, maxBoxes: " + barNo + " " + level + " " + sign + " " + maxLevel + " " + maxBoxes);
-
     var canvas = document.getElementById("stereo-canvas");
-    var context = canvas.getContext("2d")
+    var context = canvas.getContext("2d");
 
     boxesToLight = maxBoxes * (level / maxLevel);
     // In case boxesToLight was multiplied by a negative level, reset to positive
@@ -93,8 +98,6 @@ function drawBar(barNo, level, maxLevel, maxBoxes)
     {
         boxesToLight *= -1;
     }
-
-    // alert (boxesToLight);
 
     var boxNo;
 
@@ -106,25 +109,73 @@ function drawBar(barNo, level, maxLevel, maxBoxes)
         var centerPos = canvas.height / 2;
         if(level > 0)
         {
-            // alert("positive");
             // Draw from the center up
             y = centerPos - (boxHeight + spaceBetweenBoxes) - (centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxNo);
         }
         else
         {
-            // alert("negative");
             // Draw from the center down
             y = centerPos + spaceBetweenBoxes + (centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxNo);
         }
-        // alert("Drawing at x: " + x + " and y: " + y + " and boxNo: " + boxNo);
-        context.fillStyle = getColor(boxNo, maxBoxes);
+        context.fillStyle = getBoxColor(boxNo, maxBoxes);
         context.fillRect(x, y, boxWidth, boxHeight);
     }
 }
 
+function drawCenter()
+{
+    var canvas = document.getElementById("stereo-canvas");
+    var context = canvas.getContext("2d");
+
+    var centerPos = canvas.height / 2;
+    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerHorizontalMargin * 2;
+
+    context.fillStyle = centerColor;
+    context.fillRect(0, centerPos - centerHeight / 2, centerWidth, centerHeight);
+
+}
+
+// Draws all of the on-screen text for the application
+function drawText()
+{
+    var canvas = document.getElementById("stereo-canvas");
+    var context = canvas.getContext("2d");
+    
+    // Draw bar labels
+    var centerPos = canvas.height / 2;
+    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerHorizontalMargin * 2;
+
+    context.fillStyle = barLabelColor;    
+    context.font = barLabelFont;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+
+    context.shadowOffsetX = barLabelShadowOffsetX;
+    context.shadowOffsetY = barLabelShadowOffsetY;
+    context.shadowBlur = barLabelShadowBlur;
+    context.shadowColor = barLabelShadowColor;
+
+    var barNo;
+    for(barNo = 0; barNo < numBars; barNo++)
+    {
+        // Adding 0.5 to the position allows the text to be properly centered
+        var x = centerHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
+        var y = centerPos;
+        context.fillText("testing", x, y, boxWidth);
+    }
+
+    // Reset shadows
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+    context.shadowBlur = 0;
+    context.shadowColor = "#000000";
+        
+
+}
+
 // Return a color corresponding to how high the bar is
 // (colors cycle from green to red)
-function getColor(boxNo, maxBoxes)
+function getBoxColor(boxNo, maxBoxes)
 {
     // Colors go from green (#00FF00)
     // to yellow (#FFFF00) to red (#FF0000)
@@ -138,7 +189,6 @@ function getColor(boxNo, maxBoxes)
     {
         red = 255;
     }
-    // alert("Red: " + red);
 
     var green;
     if ((boxNo / maxBoxes) < 0.5)
