@@ -1,32 +1,34 @@
 var alpha = 255;
 var level = 0;
 var testSign = 1;
-
+var isPlaying = false;
 
 // Config values
-var boxWidth = 44;
-var boxHeight = 8;
+var boxWidth = 40;
+var boxHeight = 6;
 var numBars = 10;
 var maxBoxes = 20;
 var spaceBetweenBoxes = 2;
 var spaceBetweenBars = 4;  
-var timeStep = 16;
+var timeStep = 32;
 var backgroundColor = "#000000";
 var centerColor = "#444444";
 var barLabelColor = "#FFFFFF";
 var barLabelFont = "12px sans-serif";
 var barLabelShadowOffsetX = 1;
 var barLabelShadowOffsetY = 1;
-var barLabelShadowBlur = 4;
+var barLabelShadowBlur = 1;
 var barLabelShadowColor = "#000000";
 var buttonOutlineColor = "#FFFFFF";
-var buttonInsideColor = "#AAAAAA";
+var buttonInsideColor = "#999999";
 var buttonOutlineThickness = 1;
-var isPlaying = false;
 var centerHeight = 30;
 var centerLeftHorizontalMargin = 60;
 var centerRightHorizontalMargin = 20;
 
+var leftBarOffset = 0;
+var leftBarWidth = 54;
+var leftBarColor = "#333333";
 
 function initDraw()
 {
@@ -40,12 +42,10 @@ function initDraw()
 
 function process()
 {
-
     var barNo = 0;
     var maxLevel = 1000;
 
     draw(numBars, barNo, maxLevel);
-
 }
 
 function draw(numBars, barNo, maxLevel)
@@ -58,6 +58,7 @@ function draw(numBars, barNo, maxLevel)
     drawBars(numBars, maxLevel);
 
     drawCenter();
+    drawLeftBar();
 
     drawText();
 }
@@ -187,6 +188,26 @@ function drawCenter()
 
 }
 
+// Draw left bar
+function drawLeftBar()
+{
+    var canvas = document.getElementById("stereo-canvas");
+    var context = canvas.getContext("2d");
+    
+    var centerPos = canvas.height / 2;
+
+    var leftBarHeight = 200;
+
+    context.fillStyle = leftBarColor;
+
+    // Draw top half of bar
+    context.fillRect(leftBarOffset, centerPos - centerHeight / 2 - leftBarHeight, leftBarWidth, leftBarHeight);
+
+    // Draw bottom half of bar
+    context.fillRect(leftBarOffset, centerPos + centerHeight / 2, leftBarWidth, leftBarHeight);
+
+}
+
 // Draws all of the on-screen text for the application
 function drawText()
 {
@@ -207,7 +228,7 @@ function drawText()
     context.shadowBlur = barLabelShadowBlur;
     context.shadowColor = barLabelShadowColor;
 
-    var labelArray = new Array("Macedonia", "Malta", "Moldova", "Monaco", "Montenegro", "The Netherlands", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "Ukraine");
+    var barLabelArray = new Array("Macedonia", "Malta", "Moldova", "Monaco", "Spain", "Holland", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "Ukraine");
 
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
@@ -215,15 +236,47 @@ function drawText()
         // Adding 0.5 to the position allows the text to be properly centered
         var x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
         var y = centerPos;
-        context.fillText(labelArray[barNo], x, y, boxWidth);
+        context.fillText(barLabelArray[barNo], x, y, boxWidth);
     }
+
+
+    // Draw axis labels
+    var topLabel = "More Employment";
+    var bottomLabel = "Less Employment";
+    var leftBarHeight = 200;
+
+    // Save context to restore later
+    context.save();
+    // Draw top text at the center of the top left bar
+    context.translate(leftBarOffset + leftBarWidth / 2, centerPos - leftBarHeight / 2);
+    // Rotate pi/2 (90 degrees) counterclockwise
+    context.rotate(-Math.PI/2);
+    // Draw top text
+    context.fillText(topLabel, 0, 0, leftBarHeight - 10);
+
+    // Restore context to how it was before
+    context.restore();
+    
+
+    // Save context to restore later
+    context.save();
+
+    // Draw bottom text at the center of the bottom left bar
+    context.translate(leftBarOffset + leftBarWidth / 2, centerPos + leftBarHeight / 2);
+    // Rotate pi/2 (90 degrees) counterclockwise
+    context.rotate(-Math.PI/2);
+    // Draw bottom text
+    context.fillText(bottomLabel, 0, 0, leftBarHeight - 10);
+
+    // Restore context to how it was before
+    context.restore();  
 
     // Reset shadows
     context.shadowOffsetX = 0;
     context.shadowOffsetY = 0;
     context.shadowBlur = 0;
     context.shadowColor = "#000000";
-        
+
 
 }
 
