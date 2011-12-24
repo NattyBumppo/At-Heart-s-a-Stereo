@@ -11,11 +11,12 @@
     <h1>At Heart's a Stereo</h1>
     <font><p>A data visualization</p></font>
     
-    <div style="width:60%; background-color:#111111; display: table;">    
+    <div style="width:800px; background-color:#111111; display: table;">    
         <div style="float: left; background-color:#111111; display: table-cell;">
             <canvas id="stereo-canvas" style="border: none;" width="640" height="480"></canvas>
         </div>
         <div style="display: table-cell; margin-left: auto; margin-right: auto; float: left; background-color:#111111;">
+            <font size="2"><br />
             <p style="text-align:left;">Data Set
             <br />
             <select>
@@ -28,6 +29,15 @@
                 <option value="data_set_6">Data Set 6</option>                
                 </optgroup>
             </select></p>
+            <p>
+                <fieldset>
+                    <legend>Dependent Vars.</legend>
+                    <label><input type="radio" name="dependent_variables">One</label> 
+                    <label><input type="radio" name="dependent_variables">Two</label>
+
+                </fieldset>
+
+            </p>
             <p style="text-align:left;">Variable 1 Data
             <br />
             <select>
@@ -47,6 +57,7 @@
                 <option value="test_data_3">Test Data 3</option>
                 </optgroup>
             </select></p>
+            </font>
 
 
         </div>

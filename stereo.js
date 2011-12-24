@@ -4,10 +4,10 @@ var testSign = 1;
 var isPlaying = false;
 
 // Config values
-var boxWidth = 40;
+var boxWidth = 50;
 var boxHeight = 6;
 var numBars = 10;
-var maxBoxes = 27;
+var maxBoxes = 24;
 var spaceBetweenBoxes = 2;
 var spaceBetweenBars = 4;  
 var timeStep = 32;
@@ -23,7 +23,7 @@ var buttonOutlineColor = "#FFFFFF";
 var buttonInsideColor = "#999999";
 var buttonOutlineThickness = 1;
 var centerHeight = 30;
-var centerLeftHorizontalMargin = 60;
+var centerLeftHorizontalMargin = 64;
 var centerRightHorizontalMargin = 20;
 
 var bgColor = "#111111";
@@ -350,25 +350,23 @@ function getClickedObject(e)
     var posX;
     var posY;
 
-    // Need to check pageX and clientX for cross-browser compatibility
+    // Need to check  and clientX for cross-browser compatibility
     if (e.pageX || e.pageY)
     {
+        // alert("Using page");
         posX = e.pageX;
         posY = e.pageY;
     }   
     else if (e.clientX || e.clientY)
     {
+        // alert("Using client");
         posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
         posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
     }
 
-    // Correct using canvas offset
-    posX -= canvas.offsetLeft;
-    posY -= canvas.offsetTop;
-
-    alert("Click at (" + posX + ", " + posY + ")");
-
-    // To do: adjust offset for containing div offset to fix mouse clicks
+    // Correct using canvas offset (as well as the offset of the canvas's parent, which helps for Firefox's case)
+    posX -= (canvas.offsetLeft + canvas.offsetParent.offsetLeft);
+    posY -= (canvas.offsetTop + canvas.offsetParent.offsetTop);
 
     if (((posX >= 4) && (posX <= 4 + centerHeight - 12)) && ((posY >= centerPos - centerHeight / 2 + 6) && (posY <= centerPos + centerHeight / 2 + - 6)))
     {
