@@ -32,8 +32,8 @@
             <p>
                 <fieldset>
                     <legend>Dependent Vars.</legend>
-                    <label><input type="radio" name="dependent_variables">One</label> 
-                    <label><input type="radio" name="dependent_variables">Two</label>
+                    <label><input type="radio" name="dependent_variables" onclick="hideVariable2Data();" checked>One</label> 
+                    <label><input type="radio" name="dependent_variables" onclick="showVariable2Data();">Two</label>
 
                 </fieldset>
 
@@ -48,7 +48,7 @@
                 </optgroup>
             </select></p>
 
-            <p style="text-align:left;">Variable 2 Data
+            <p style="text-align:left; visibility: hidden;" id="variable_2_data">Variable 2 Data
             <br />
             <select>
                 <optgroup label="Variable 2 Data">

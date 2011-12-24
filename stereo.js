@@ -350,16 +350,14 @@ function getClickedObject(e)
     var posX;
     var posY;
 
-    // Need to check  and clientX for cross-browser compatibility
+    // Need to check pageX/Y and clientX/Y in order to have cross-browser compatibility
     if (e.pageX || e.pageY)
     {
-        // alert("Using page");
         posX = e.pageX;
         posY = e.pageY;
     }   
     else if (e.clientX || e.clientY)
     {
-        // alert("Using client");
         posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
         posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
     }
@@ -380,3 +378,17 @@ function getClickedObject(e)
 
     return "";
 }
+
+function showVariable2Data()
+{
+    document.getElementById("variable_2_data").style.visibility = 'visible';
+
+}
+
+function hideVariable2Data()
+{
+    document.getElementById("variable_2_data").style.visibility = 'hidden';
+
+}
+
+
