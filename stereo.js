@@ -7,7 +7,7 @@ var isPlaying = false;
 var boxWidth = 40;
 var boxHeight = 6;
 var numBars = 10;
-var maxBoxes = 20;
+var maxBoxes = 27;
 var spaceBetweenBoxes = 2;
 var spaceBetweenBars = 4;  
 var timeStep = 32;
@@ -70,7 +70,6 @@ function draw(numBars, barNo, maxLevel)
 
 function drawBars(numBars, maxLevel)
 {
-
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d")
 
