@@ -42,11 +42,16 @@ var bottomBarHeight = 30;
 
 playButton = new Object();
 stopButton = new Object();
+timeButton = new Object();
 
 playButton.scale = 0.5;
 stopButton.scale = 0.5;
+timeButton.scale = 0.5;
 playButton.offset = leftBarWidth + 4;
 stopButton.offset = -5;
+timeButton.offset = -10;
+
+timeButton.verticalMargin = 4;
 
 // Initializes the play/pause button
 playButton.init = function()
@@ -94,8 +99,6 @@ playButton.draw = function()
 // Draws the stop button
 stopButton.draw = function()
 {
-
-
     // Draw Stop Button
     context.beginPath();
     context.moveTo(stopButton.rectangle[0], stopButton.rectangle[1]);
@@ -107,9 +110,6 @@ stopButton.draw = function()
     context.fill();
     context.stroke();
     context.closePath();
-
-
-
 }
 
 // Initializes the stop button
@@ -122,9 +122,35 @@ stopButton.init = function()
     stopButton.centerY = playButton.centerY;
 
     stopButton.rectangle = new Array(stopButton.centerX - (stopButton.width / 2) * stopButton.scale, stopButton.centerY - (stopButton.width / 2) * stopButton.scale, stopButton.width * stopButton.scale, stopButton.width * stopButton.scale);
-
 }
 
+
+// Initializes the button to change the time speed
+timeButton.init = function()
+{
+    var bottomBarPos = canvas.height - bottomBarHeight / 2;
+
+    timeButton.width = bottomBarHeight * 2.5;
+    timeButton.centerX = playButton.offset + playButton.width + stopButton.offset + stopButton.width + timeButton.offset + (timeButton.width / 2);
+    timeButton.centerY = playButton.centerY;
+
+    timeButton.rectangle = new Array(timeButton.centerX - (timeButton.width / 2) * timeButton.scale, timeButton.centerY - bottomBarHeight / 2 + timeButton.verticalMargin, timeButton.width * timeButton.scale, bottomBarHeight - timeButton.verticalMargin * 2);
+
+    timeButton.value = 1;
+}
+
+// Draws the time button
+timeButton.draw = function()
+{
+    // Draw the outer rectangle
+    context.strokeStyle = buttonOutlineColor;
+    context.fillStyle = buttonInsideColor;
+    context.lineWidth = buttonOutlineThickness;
+    context.strokeRect(timeButton.rectangle[0], timeButton.rectangle[1], timeButton.rectangle[2], timeButton.rectangle[3]);
+
+    // Draw the text in the middle
+
+}
 
 
 function initDraw()
@@ -138,6 +164,7 @@ function initDraw()
 
     playButton.init();
     stopButton.init();
+    timeButton.init();
 
     return setTimeout("process()", timeStep);
 }
@@ -281,6 +308,7 @@ function drawButtons()
 {
     playButton.draw();
     stopButton.draw();
+    timeButton.draw();
 }
 
 // Draws all of the on-screen text for the application
@@ -408,6 +436,9 @@ function onClick(e)
         case "stopButton":
             alert("stop button clicked!");
             break;
+        case "timeButton":
+            alert("time button clicked!");
+            break;
         default:
             // alert("Other click");
     }
@@ -442,13 +473,6 @@ function getClickedObject(e)
     posX -= (canvas.offsetLeft + canvas.offsetParent.offsetLeft);
     posY -= (canvas.offsetTop + canvas.offsetParent.offsetTop);
 
-
-    var canvas = document.getElementById("stereo-canvas");
-    var context = canvas.getContext("2d");
-
-    var bottomBarPos = canvas.height - bottomBarHeight / 2;
-
-
     if (((posX >= playButton.rectangle[0]) && (posX <= playButton.rectangle[0] + playButton.rectangle[2])) && ((posY >= playButton.rectangle[1]) && (posY <= playButton.rectangle[1] + playButton.rectangle[3])))
     {
         return "playButton";
@@ -458,6 +482,11 @@ function getClickedObject(e)
     {
         return "stopButton";
     }
+
+    if (((posX >= timeButton.rectangle[0]) && (posX <= timeButton.rectangle[0] + timeButton.rectangle[2])) && ((posY >= timeButton.rectangle[1]) && (posY <= timeButton.rectangle[1] + timeButton.rectangle[3])))
+    {
+        return "timeButton";
+    }    
 
     return "";
 }
