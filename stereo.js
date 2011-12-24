@@ -13,7 +13,7 @@ var numBars = 10;
 var maxBoxes = 24;
 var spaceBetweenBoxes = 2;
 var spaceBetweenBars = 4;  
-var timeStep = 32;
+var timeStep = 0;
 
 var backgroundColor = "#111111";
 var centerColor = "#444444";
@@ -137,6 +137,7 @@ timeButton.init = function()
     timeButton.rectangle = new Array(timeButton.centerX - (timeButton.width / 2) * timeButton.scale, timeButton.centerY - bottomBarHeight / 2 + timeButton.verticalMargin, timeButton.width * timeButton.scale, bottomBarHeight - timeButton.verticalMargin * 2);
 
     timeButton.value = 1;
+    timeStep = 512 / timeButton.value;
 }
 
 // Draws the time button
@@ -149,9 +150,21 @@ timeButton.draw = function()
     context.strokeRect(timeButton.rectangle[0], timeButton.rectangle[1], timeButton.rectangle[2], timeButton.rectangle[3]);
 
     // Draw the text in the middle
+    context.textAlign = "center";
+    context.fillText(this.value + "x", this.centerX, this.centerY);
 
 }
 
+// Make the time step decrease
+timeButton.advance = function()
+{
+    timeButton.value *= 2;
+    if (timeButton.value == 32)
+    {
+        timeButton.value = 1;
+    }
+    timeStep = 512 / timeButton.value;
+}
 
 function initDraw()
 {
@@ -437,7 +450,8 @@ function onClick(e)
             alert("stop button clicked!");
             break;
         case "timeButton":
-            alert("time button clicked!");
+            // alert("time button clicked!");
+            timeButton.advance();
             break;
         default:
             // alert("Other click");
