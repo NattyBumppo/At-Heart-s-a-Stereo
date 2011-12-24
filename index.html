@@ -7,6 +7,26 @@
 <script type="text/javascript" src="stereo.js"></script>
 
 <body bgcolor="#000000" onload="initDraw();">
-    <center><canvas id="stereo-canvas" style="border: none;" width="640" height="480"></canvas></center>
+    <center><font color="#FFFFFF">
+    <h1>At Heart's a Stereo</h1>
+    <font><p>A data visualization</p></font>
+    
+    <div style="width:60%; background-color:#111111; display: table;">    
+        <div style="float: left; background-color:#111111; display: table-cell;">
+            <canvas id="stereo-canvas" style="border: none;" width="640" height="480"></canvas>
+        </div>
+        <div style="display: table-cell; margin-left: auto; margin-right: auto; float: left; background-color:#111111;">
+            <br />
+            <select>
+                <optgroup label="Test Data">
+                <option value="test_data_1">Test Data 1</option>
+                <option value="test_data_2">Test Data 2</option>
+                <option value="test_data_3">Test Data 3</option>
+                </optgroup>
+            </select>
+            <br /><br />
+        </div>
+    </div>
+    </font></center>
 
 </html>

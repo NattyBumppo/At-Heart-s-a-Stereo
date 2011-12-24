@@ -26,6 +26,8 @@ var centerHeight = 30;
 var centerLeftHorizontalMargin = 60;
 var centerRightHorizontalMargin = 20;
 
+var bgColor = "#111111";
+
 var leftBarOffset = 0;
 var leftBarWidth = 54;
 var leftBarColor = "#333333";
@@ -35,6 +37,8 @@ function initDraw()
 {
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d");
+
+    canvas.style.backgroundColor = bgColor;
 
     canvas.addEventListener("click", onClick, false);
 
@@ -114,7 +118,6 @@ function drawBar(barNo, level, maxLevel, maxBoxes)
     {
         x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * barNo;
 
-
         var centerPos = canvas.height / 2;
         if(level > 0)
         {
@@ -172,7 +175,6 @@ function drawCenter()
 
         context.fillRect(playButtonRectangle[0] + playButtonRectangle[2] / 2 + 4, playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
         context.strokeRect(playButtonRectangle[0] + playButtonRectangle[2] / 2 + 4, playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
-
     }
 
     // Draw Stop Button
@@ -204,7 +206,6 @@ function drawLeftBar()
 
     // Draw bottom half of bar
     context.fillRect(leftBarOffset, centerPos + centerHeight / 2, leftBarWidth, leftBarHeight);
-
 }
 
 // Draws all of the on-screen text for the application
@@ -237,7 +238,6 @@ function drawText()
         var y = centerPos;
         context.fillText(barLabelArray[barNo], x, y, boxWidth);
     }
-
 
     // Draw axis labels
     var topLabel = "More Unemployment";
@@ -273,8 +273,6 @@ function drawText()
     context.shadowOffsetY = 0;
     context.shadowBlur = 0;
     context.shadowColor = "#000000";
-
-
 }
 
 // Return a color corresponding to how high the bar is
@@ -338,7 +336,6 @@ function onClick(e)
         default:
             // alert("Other click");
     }
-
 }
 
 // Parse mouse click to figure out which on-screen object was clicked
@@ -351,7 +348,6 @@ function getClickedObject(e)
     var centerPos = canvas.height / 2;
     var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerLeftHorizontalMargin + centerRightHorizontalMargin;
 
-
     var posX;
     var posY;
 
@@ -360,20 +356,21 @@ function getClickedObject(e)
     {
         posX = e.pageX;
         posY = e.pageY;
-        // alert("Set using pageX/Y");
     }   
     else if (e.clientX || e.clientY)
     {
         posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
         posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-        // alert("Set using clientX/Y");
     }
 
     // Correct using canvas offset
     posX -= canvas.offsetLeft;
     posY -= canvas.offsetTop;
 
-    // alert("Click at (" + posX + ", " + posY + ")"); 
+    alert("Click at (" + posX + ", " + posY + ")");
+
+    // To do: adjust offset for containing div offset to fix mouse clicks
+
     if (((posX >= 4) && (posX <= 4 + centerHeight - 12)) && ((posY >= centerPos - centerHeight / 2 + 6) && (posY <= centerPos + centerHeight / 2 + - 6)))
     {
         return "playButton";
@@ -385,5 +382,4 @@ function getClickedObject(e)
     }
 
     return "";
-
 }
