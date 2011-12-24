@@ -1,4 +1,7 @@
-var alpha = 255;
+var canvas;
+var context;
+
+// var alpha = 255;
 var level = 0;
 var testSign = 1;
 var isPlaying = false;
@@ -11,7 +14,8 @@ var maxBoxes = 24;
 var spaceBetweenBoxes = 2;
 var spaceBetweenBars = 4;  
 var timeStep = 32;
-var backgroundColor = "#000000";
+
+var backgroundColor = "#111111";
 var centerColor = "#444444";
 var barLabelColor = "#FFFFFF";
 var barLabelFont = "12px sans-serif";
@@ -26,23 +30,116 @@ var centerHeight = 30;
 var centerLeftHorizontalMargin = 64;
 var centerRightHorizontalMargin = 20;
 
-var bgColor = "#111111";
-
 var leftBarOffset = 0;
 var leftBarWidth = 54;
 var leftBarColor = "#333333";
 var leftBarHeight = maxBoxes * (boxHeight + spaceBetweenBoxes) + 20;
 
+var bottomBarOffset = 0;
+var bottomBarWidth = 640;
+var bottomBarColor = "#444444";
+var bottomBarHeight = 30;
+
+playButton = new Object();
+stopButton = new Object();
+
+playButton.scale = 0.5;
+stopButton.scale = 0.5;
+playButton.offset = leftBarWidth + 4;
+stopButton.offset = -5;
+
+// Initializes the play/pause button
+playButton.init = function()
+{
+    var bottomBarPos = canvas.height - bottomBarHeight / 2;
+
+    playButton.width = bottomBarHeight;
+    playButton.centerX = playButton.offset + (playButton.width / 2);
+    playButton.centerY = bottomBarPos;
+    
+    playButton.rectangle = new Array(playButton.centerX - (playButton.width / 2) * playButton.scale, playButton.centerY - (playButton.width / 2) * playButton.scale, playButton.width * playButton.scale, playButton.width * playButton.scale);
+}
+
+// Draws the play/pause button
+playButton.draw = function()
+{
+    context.strokeStyle = buttonOutlineColor;
+    context.fillStyle = buttonInsideColor;
+    context.lineWidth = buttonOutlineThickness;
+
+    if(!isPlaying)
+    {
+        // Draw Play Button
+        context.beginPath();
+        context.moveTo(playButton.rectangle[0], playButton.rectangle[1]);
+        context.lineTo(playButton.rectangle[0] + playButton.rectangle[2], playButton.rectangle[1] + playButton.rectangle[3] / 2)
+        context.lineTo(playButton.rectangle[0], playButton.rectangle[1] + playButton.rectangle[3]);
+        context.lineTo(playButton.rectangle[0], playButton.rectangle[1]);
+
+        context.fill();
+        context.stroke();
+        context.closePath();
+    }
+    else
+    {
+        // Draw Pause Button
+        context.fillRect(playButton.rectangle[0], playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
+        context.strokeRect(playButton.rectangle[0], playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
+
+        context.fillRect(playButton.rectangle[0] + playButton.rectangle[2] / 2 + 4, playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
+        context.strokeRect(playButton.rectangle[0] + playButton.rectangle[2] / 2 + 4, playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
+    }
+}
+
+// Draws the stop button
+stopButton.draw = function()
+{
+
+
+    // Draw Stop Button
+    context.beginPath();
+    context.moveTo(stopButton.rectangle[0], stopButton.rectangle[1]);
+    context.lineTo(stopButton.rectangle[0] + stopButton.rectangle[2], stopButton.rectangle[1]);
+    context.lineTo(stopButton.rectangle[0] + stopButton.rectangle[2], stopButton.rectangle[1] + stopButton.rectangle[3]);
+    context.lineTo(stopButton.rectangle[0], stopButton.rectangle[1] + stopButton.rectangle[3]);
+    context.lineTo(stopButton.rectangle[0], stopButton.rectangle[1]);
+
+    context.fill();
+    context.stroke();
+    context.closePath();
+
+
+
+}
+
+// Initializes the stop button
+stopButton.init = function()
+{
+    var bottomBarPos = canvas.height - bottomBarHeight / 2;
+
+    stopButton.width = bottomBarHeight;
+    stopButton.centerX = playButton.offset + playButton.width + stopButton.offset + (stopButton.width / 2);
+    stopButton.centerY = playButton.centerY;
+
+    stopButton.rectangle = new Array(stopButton.centerX - (stopButton.width / 2) * stopButton.scale, stopButton.centerY - (stopButton.width / 2) * stopButton.scale, stopButton.width * stopButton.scale, stopButton.width * stopButton.scale);
+
+}
+
+
+
 function initDraw()
 {
-    var canvas = document.getElementById("stereo-canvas");
-    var context = canvas.getContext("2d");
+    canvas = document.getElementById("stereo-canvas");
+    context = canvas.getContext("2d");
 
-    canvas.style.backgroundColor = bgColor;
+    canvas.style.backgroundColor = backgroundColor;
 
     canvas.addEventListener("click", onClick, false);
 
-    return setInterval(process, timeStep);
+    playButton.init();
+    stopButton.init();
+
+    return setTimeout("process()", timeStep);
 }
 
 function process()
@@ -51,6 +148,7 @@ function process()
     var maxLevel = 1000;
 
     draw(numBars, barNo, maxLevel);
+    setTimeout("process()", timeStep);
 }
 
 function draw(numBars, barNo, maxLevel)
@@ -64,6 +162,8 @@ function draw(numBars, barNo, maxLevel)
 
     drawCenter();
     drawLeftBar();
+    drawBottomBar();
+    drawButtons();
 
     drawText();
 }
@@ -77,7 +177,7 @@ function drawBars(numBars, maxLevel)
     for(barNo = 0; barNo < numBars; barNo++)
     {
 
-        level += 3 * testSign;
+        if (isPlaying){level += 3 * testSign;}
 
         // If the level is beyond the maximum level, and positive,
         // make it start going start
@@ -143,51 +243,6 @@ function drawCenter()
 
     context.fillStyle = centerColor;
     context.fillRect(0, centerPos - centerHeight / 2, centerWidth, centerHeight);
-
-    // Draw buttons
-    var playButtonRectangle = new Array(4, centerPos - centerHeight / 2 + 6, centerHeight - 12, centerHeight - 12);
-    var stopButtonRectangle = new Array(4 + centerHeight, centerPos - centerHeight / 2 + 6, centerHeight - 12, centerHeight - 12);
-
-    // Play/pause button
-    context.strokeStyle = buttonOutlineColor;
-    context.fillStyle = buttonInsideColor;
-    context.lineWidth = buttonOutlineThickness;
-
-    if(!isPlaying)
-    {
-        // Draw Play Button
-        context.beginPath();
-        context.moveTo(playButtonRectangle[0], playButtonRectangle[1]);
-        context.lineTo(playButtonRectangle[0] + playButtonRectangle[2], playButtonRectangle[1] + playButtonRectangle[3] / 2)
-        context.lineTo(playButtonRectangle[0], playButtonRectangle[1] + playButtonRectangle[3]);
-        context.lineTo(playButtonRectangle[0], playButtonRectangle[1]);
-
-        context.fill();
-        context.stroke();
-        context.closePath();
-    }
-    else
-    {
-        // Draw Pause Button
-        context.fillRect(playButtonRectangle[0], playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
-        context.strokeRect(playButtonRectangle[0], playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
-
-        context.fillRect(playButtonRectangle[0] + playButtonRectangle[2] / 2 + 4, playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
-        context.strokeRect(playButtonRectangle[0] + playButtonRectangle[2] / 2 + 4, playButtonRectangle[1], playButtonRectangle[2] / 2 - 4, playButtonRectangle[3]);
-    }
-
-    // Draw Stop Button
-    context.beginPath();
-    context.moveTo(stopButtonRectangle[0], stopButtonRectangle[1]);
-    context.lineTo(stopButtonRectangle[0] + stopButtonRectangle[2], stopButtonRectangle[1]);
-    context.lineTo(stopButtonRectangle[0] + stopButtonRectangle[2], stopButtonRectangle[1] + stopButtonRectangle[3]);
-    context.lineTo(stopButtonRectangle[0], stopButtonRectangle[1] + stopButtonRectangle[3]);
-    context.lineTo(stopButtonRectangle[0], stopButtonRectangle[1]);
-
-    context.fill();
-    context.stroke();
-    context.closePath();
-
 }
 
 // Draw left bar
@@ -205,6 +260,27 @@ function drawLeftBar()
 
     // Draw bottom half of bar
     context.fillRect(leftBarOffset, centerPos + centerHeight / 2, leftBarWidth, leftBarHeight);
+}
+
+// Draw bottom bar
+function drawBottomBar()
+{
+    var canvas = document.getElementById("stereo-canvas");
+    var context = canvas.getContext("2d");
+
+    var bottomBarPos = canvas.height - bottomBarHeight / 2;
+    
+    context.fillStyle = bottomBarColor;
+
+    // Draw bottom bar
+    context.fillRect(bottomBarOffset, bottomBarPos - bottomBarHeight / 2, bottomBarWidth, bottomBarHeight);
+
+}
+
+function drawButtons()
+{
+    playButton.draw();
+    stopButton.draw();
 }
 
 // Draws all of the on-screen text for the application
@@ -330,7 +406,7 @@ function onClick(e)
 
             break;
         case "stopButton":
-            // alert("stop button clicked!");
+            alert("stop button clicked!");
             break;
         default:
             // alert("Other click");
@@ -366,12 +442,19 @@ function getClickedObject(e)
     posX -= (canvas.offsetLeft + canvas.offsetParent.offsetLeft);
     posY -= (canvas.offsetTop + canvas.offsetParent.offsetTop);
 
-    if (((posX >= 4) && (posX <= 4 + centerHeight - 12)) && ((posY >= centerPos - centerHeight / 2 + 6) && (posY <= centerPos + centerHeight / 2 + - 6)))
+
+    var canvas = document.getElementById("stereo-canvas");
+    var context = canvas.getContext("2d");
+
+    var bottomBarPos = canvas.height - bottomBarHeight / 2;
+
+
+    if (((posX >= playButton.rectangle[0]) && (posX <= playButton.rectangle[0] + playButton.rectangle[2])) && ((posY >= playButton.rectangle[1]) && (posY <= playButton.rectangle[1] + playButton.rectangle[3])))
     {
         return "playButton";
     }
 
-    if (((posX >= 4 + centerHeight) && (posX <= 2 * centerHeight - 8)) && ((posY >= centerPos - centerHeight / 2 + 6) && (posY <= centerPos + centerHeight / 2 + - 6)))
+    if (((posX >= stopButton.rectangle[0]) && (posX <= stopButton.rectangle[0] + stopButton.rectangle[2])) && ((posY >= stopButton.rectangle[1]) && (posY <= stopButton.rectangle[1] + stopButton.rectangle[3])))
     {
         return "stopButton";
     }
