@@ -455,6 +455,7 @@ function draw(numBars, barNo, maxLevel)
     drawBottomBar();
     drawButtons();
     drawText();
+    drawTooltips();
 }
 
 function drawBars(numBars, maxLevel)
@@ -622,6 +623,25 @@ function drawText()
     context.shadowOffsetY = 0;
     context.shadowBlur = 0;
     context.shadowColor = "#000000";
+}
+
+function drawTooltips()
+{
+    // Check for hovering over a bar
+    var barNo;
+    for (barNo = 0; barNo < numBars; barNo++)
+    {
+        var bar = new Object();
+        bar.left = ;
+        bar.top = ;
+        bar.width = ;
+
+        // Add more here!
+        // var hoverRect = new Array(
+
+    }
+
+
 }
 
 // Return a color corresponding to how high the bar is
