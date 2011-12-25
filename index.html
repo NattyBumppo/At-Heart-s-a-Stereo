@@ -4,6 +4,7 @@
 <title>At Heart's a Stereo</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
+<script type="text/javascript" src="sampleData.js"></script>
 <script type="text/javascript" src="stereo.js"></script>
 
 <body bgcolor="#000000" onload="initDraw();">
@@ -11,7 +12,7 @@
     <h1>At Heart's a Stereo</h1>
     <font><p>A data visualization</p></font>
     
-    <div style="width:800px; background-color:#111111; display: table;">    
+    <div style="min-width:800px; background-color:#111111; display: table;">    
         <div style="float: left; background-color:#111111; display: table-cell;">
             <canvas id="stereo-canvas" style="border: none;" width="640" height="480"></canvas>
         </div>
@@ -19,15 +20,7 @@
             <font size="2" face="arial"><br />
             <p style="text-align:left;">Data Set
             <br />
-            <select>
-                <optgroup label="Data Set">
-                <option value="data_set_1">Data Set 1</option>
-                <option value="data_set_2">Data Set 2</option>
-                <option value="data_set_3">Data Set 3</option>
-                <option value="data_set_4">Data Set 4</option>
-                <option value="data_set_5">Data Set 5</option>
-                <option value="data_set_6">Data Set 6</option>                
-                </optgroup>
+            <select id="datasetSelector" onclick="datasetChange();">
             </select></p>
             <p>
                 <fieldset>
@@ -38,23 +31,23 @@
                 </fieldset>
 
             </p>
-            <p style="text-align:left;">Variable 1 Data
+            <p style="text-align:left;">Variable 1
             <br />
-            <select>
-                <optgroup label="Variable 1 Data">
-                <option value="test_data_1">Test Data 1</option>
-                <option value="test_data_2">Test Data 2</option>
-                <option value="test_data_3">Test Data 3</option>
+            <select id="variable1Selector">
+                <optgroup label="Variable 1" onclick="variable1change();">
+                <option value="testdata1">Test Data 1</option>
+                <option value="testdata2">Test Data 2</option>
+                <option value="testdata3">Test Data 3</option>
                 </optgroup>
             </select></p>
 
-            <p style="text-align:left; visibility: hidden;" id="variable_2_data">Variable 2 Data
+            <p style="text-align:left; visibility: hidden;" id="variable2element">Variable 2
             <br />
-            <select>
-                <optgroup label="Variable 2 Data">
-                <option value="test_data_1">Test Data 1</option>
-                <option value="test_data_2">Test Data 2</option>
-                <option value="test_data_3">Test Data 3</option>
+            <select id="variable2Selector">
+                <optgroup label="Variable 2" onclick="variable2change();">
+                <option value="testdata1">Test Data 1</option>
+                <option value="testdata2">Test Data 2</option>
+                <option value="testdata3">Test Data 3</option>
                 </optgroup>
             </select></p>
             </font>

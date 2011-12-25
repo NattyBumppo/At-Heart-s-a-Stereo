@@ -2,25 +2,13 @@ var canvas;
 var context;
 var timeout;
 
+var currentDataset = dataset1
+var colNo = 0
+
 // var alpha = 255;
 var level = 0;
 var testSign = 1;
 var isPlaying = false;
-var testDataLabels = new Array("Macedonia", "Malta", "Moldova", "Monaco", "Spain", "Holland", "Norway", "Poland", "Portugal", "Romania");
-var testData =
-    [   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-        [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-        [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10],
-        [10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1],
-        [-20, -18, -16, -14, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18],
-        [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-        [20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0, -2, -4, -6, -8, -10, -12, -14, -16, -18],
-        [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8],
-        [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1, 0, -1],
-        [-20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1]
-    ];
-
-var testDataTimes = new Array("1970", "1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987", "1988", "1989");
 var dataIterator;
 
 // Config values
@@ -43,14 +31,16 @@ var barLabelShadowColor = "#000000";
 var buttonOutlineColor = "#FFFFFF";
 var buttonInsideColor = "#999999";
 var buttonOutlineThickness = 1;
+
 var centerHeight = 30;
+var centerWidth = 640
 var centerLeftHorizontalMargin = 64;
 var centerRightHorizontalMargin = 20;
 
 var leftBarOffset = 0;
 var leftBarWidth = 54;
 var leftBarColor = "#333333";
-var leftBarHeight = maxBoxes * (boxHeight + spaceBetweenBoxes) + 20;
+var leftBarHeight = 240 - centerHeight / 2
 
 var bottomBarOffset = 0;
 var bottomBarWidth = 640;
@@ -226,7 +216,7 @@ previousButton.draw = function()
     // Draw the text for the previous button (if any data is applicable)
     if (dataIterator > 0)
     {
-        text = testDataTimes[dataIterator - 1];
+        text = currentDataset.timeLabels[dataIterator - 1];
     }
     else
     {
@@ -269,7 +259,7 @@ currentButton.draw = function()
     context.strokeRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
 
     // Draw the text for the current button
-    text = testDataTimes[dataIterator];
+    text = currentDataset.timeLabels[dataIterator];
 
     context.fillStyle = barLabelColor;    
     context.font = barLabelFont;
@@ -299,9 +289,9 @@ nextButton.draw = function()
     context.strokeRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
 
     // Draw the text for the next button (if any data is applicable)
-    if (dataIterator < testDataTimes.length - 1)
+    if (dataIterator < currentDataset.timeLabels.length - 1)
     {
-        text = testDataTimes[dataIterator + 1];
+        text = currentDataset.timeLabels[dataIterator + 1];
     }
     else
     {
@@ -331,6 +321,8 @@ function initDraw()
 
     dataIterator = 0;
 
+    setElementValues();
+
     playButton.init();
     stopButton.init();
     timeButton.init();
@@ -341,17 +333,36 @@ function initDraw()
     process();
 }
 
+function setElementValues()
+{
+    var datasetSelector = document.getElementById("datasetSelector");
+    var optgroup = document.createElement("optgroup");
+
+    for (datasetCounter in datasets)
+    {
+        // alert("dataset name: " + datasets[datasetCounter].name)
+        // alert("First time label:" + datasets[datasetCounter].timeLabels[0])
+        var option = new Option(datasets[datasetCounter].name);
+        option.setAttribute("value", datasetCounter)
+        optgroup.appendChild(option)
+    }
+    datasetSelector.appendChild(optgroup);
+
+    // come back
+
+}
+
 function process()
 {
     var barNo = 0;
-    var maxLevel = 1000;
+    var maxLevel = currentDataset.columnMaxValues[colNo];
 
     if (isPlaying)
     {
         // Move on to next data point if there is data left
-        if (dataIterator < testDataTimes.length - 1)
+        if (dataIterator < currentDataset.timeLabels.length - 1)
         {
-            // alert(dataIterator + " < " + testDataTimes.length);
+            // alert(dataIterator + " < " + currentDataset.timeLabels.length);
             dataIterator++;
         }
         // Otherwise, stop moving   
@@ -375,9 +386,6 @@ function draw(numBars, barNo, maxLevel)
 
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    // hard-coded
-    maxLevel = 20;
-
     drawBars(numBars, maxLevel);
 
     drawCenter();
@@ -395,7 +403,7 @@ function drawBars(numBars, maxLevel)
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
-        drawBar(barNo, testData[barNo][dataIterator], maxLevel, maxBoxes);
+        drawBar(barNo, currentDataset.columnDataPerSheet[barNo][colNo][dataIterator], maxLevel, maxBoxes);
     }
 }
 
@@ -441,7 +449,7 @@ function drawCenter()
     var context = canvas.getContext("2d");
 
     var centerPos = canvas.height / 2;
-    var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerLeftHorizontalMargin + centerRightHorizontalMargin;
+    // var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerLeftHorizontalMargin + centerRightHorizontalMargin;
 
     context.fillStyle = centerColor;
     context.fillRect(0, centerPos - centerHeight / 2, centerWidth, centerHeight);
@@ -515,12 +523,12 @@ function drawText()
         // Adding 0.5 to the position allows the text to be properly centered
         var x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
         var y = centerPos;
-        context.fillText(testDataLabels[barNo], x, y, boxWidth);
+        context.fillText(currentDataset.dataSheets[barNo], x, y, boxWidth);
     }
 
     // Draw axis labels
-    var topLabel = "More Unemployment";
-    var bottomLabel = "Less Employment";
+    var topLabel = currentDataset.axisLabels[colNo][0];
+    var bottomLabel = currentDataset.axisLabels[colNo][1];
 
     // Save context to restore later
     context.save();
@@ -630,7 +638,7 @@ function onClick(e)
         case "nextButton":
             // alert("next button clicked!");
             isPlaying = false;
-            if (dataIterator < testDataTimes.length - 1)
+            if (dataIterator < currentDataset.timeLabels.length - 1)
             {
                 dataIterator++;
             }
@@ -701,13 +709,32 @@ function getClickedObject(e)
 
 function showVariable2Data()
 {
-    document.getElementById("variable_2_data").style.visibility = 'visible';
+    document.getElementById("variable2element").style.visibility = 'visible';
 
 }
 
 function hideVariable2Data()
 {
-    document.getElementById("variable_2_data").style.visibility = 'hidden';
+    document.getElementById("variable2element").style.visibility = 'hidden';
+
+}
+
+function datasetChange()
+{
+    var datasetNo = document.getElementById("datasetSelector").value;
+    // alert("Changing to dataset: " + datasetValue);
+    currentDataset = datasets[datasetNo]
+}
+
+function variable1change()
+{
+
+
+}
+
+function variable2change()
+{
+
 
 }
 
