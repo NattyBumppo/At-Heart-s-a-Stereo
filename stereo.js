@@ -150,7 +150,10 @@ timeButton.draw = function()
     context.strokeRect(timeButton.rectangle[0], timeButton.rectangle[1], timeButton.rectangle[2], timeButton.rectangle[3]);
 
     // Draw the text in the middle
-    context.textAlign = "center";
+    context.fillStyle = barLabelColor;    
+    context.font = barLabelFont;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
     context.fillText(this.value + "x", this.centerX, this.centerY);
 
 }
