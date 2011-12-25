@@ -1,6 +1,7 @@
 var canvas;
 var context;
 var timeout;
+var hoverRects = new Array();
 
 var currentDataset = dataset1;
 var variable1Col = 0;
@@ -163,7 +164,7 @@ timeButton.init = function()
     timeButton.rectangle = new Array(timeButton.centerX - (timeButton.width / 2) * timeButton.scale, timeButton.centerY - bottomBarHeight / 2 + timeButton.verticalMargin, timeButton.width * timeButton.scale, bottomBarHeight - timeButton.verticalMargin * 2);
 
     timeButton.value = 1;
-    timeStep = 512 / timeButton.value;
+    timeStep  = 1024 / timeButton.value;
 }
 
 // Draws the time button
@@ -318,8 +319,6 @@ function initDraw()
 
     canvas.style.backgroundColor = backgroundColor;
 
-    canvas.addEventListener("click", onClick, false);
-
     dataIterator = 0;
 
     setUpElements();
@@ -331,6 +330,9 @@ function initDraw()
     previousButton.init();
     currentButton.init();
     nextButton.init();
+
+    canvas.addEventListener("click", onClick, false);
+    canvas.addEventListener("mousemove", onMouseMove, false);
 
     process();
 }
@@ -455,7 +457,7 @@ function draw(numBars, barNo, maxLevel)
     drawBottomBar();
     drawButtons();
     drawText();
-    drawTooltips();
+    setupTooltips();
 }
 
 function drawBars(numBars, maxLevel)
@@ -494,12 +496,12 @@ function drawBar(barNo, level, maxLevel, maxBoxes)
         if(level > 0)
         {
             // Draw from the center up
-            y = centerPos - (boxHeight + spaceBetweenBoxes) - (centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxNo);
+            y = centerPos - (centerHeight / 2) - (boxHeight + spaceBetweenBoxes) * (boxNo + 1);
         }
         else
         {
             // Draw from the center down
-            y = centerPos + spaceBetweenBoxes + (centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxNo);
+            y = centerPos + spaceBetweenBoxes + centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxNo;
         }
         context.fillStyle = getBoxColor(boxNo, maxBoxes);
         context.fillRect(x, y, boxWidth, boxHeight);
@@ -625,21 +627,53 @@ function drawText()
     context.shadowColor = "#000000";
 }
 
-function drawTooltips()
+function setupTooltips()
 {
-    // Check for hovering over a bar
+    // Check for hovering over a bar (or the center bar below/above it)
+    var centerPos = canvas.height / 2;
+
+    // Reassign hoverRect to the new, current values
+    hoverRects = new Array();
+
+    var maxLevel = currentDataset.columnMaxValues[variable1Col];
+
+    // Go to each bar and get a rectangle encompassing its content (including the center bar)
     var barNo;
     for (barNo = 0; barNo < numBars; barNo++)
     {
+        
+        var level = currentDataset.columnDataPerSheet[barNo][variable1Col][dataIterator];
+
+        // Get how many boxes will make up the stack
+        var boxesToLight = maxBoxes * (level / maxLevel);
+
+        // In case boxesToLight was multiplied by a negative level, reset to positive
+        if (boxesToLight < 0)
+        {
+            boxesToLight *= -1;
+        }
+
+
         var bar = new Object();
-        bar.left = ;
-        bar.top = ;
-        bar.width = ;
+        bar.left = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * barNo;
+        if(level > 0)
+        {
+            // Bar is from the center up
+            bar.top = centerPos - (centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxesToLight);
+            bar.bottom = centerPos + centerHeight / 2;
+        }
+        else
+        {
+            // Bar is from the center down
+            bar.top = centerPos - centerHeight / 2;
+            bar.bottom = centerPos + centerHeight / 2 + spaceBetweenBoxes + (boxHeight + spaceBetweenBoxes) * boxesToLight;
+        }
+        bar.width = boxWidth;
+        bar.height = bar.bottom - bar.top;
 
-        // Add more here!
-        // var hoverRect = new Array(
-
+        hoverRects.push(new Array(bar.left, bar.top, bar.width, bar.height));
     }
+    // alert(hoverRects.length);
 
 
 }
@@ -732,33 +766,91 @@ function onClick(e)
     }
 }
 
+// Mouse move event listener
+function onMouseMove(e)
+{
+    var barNo = getMouseMoveObject(e);
+    if (barNo == -1)
+    {
+        // Not on a bar
+        // alert("not on a bar!");
+    }
+    else
+    {
+        showTooltip(barNo, e);
+    }
+}
+
+// Show a tooltip corresponding to the currently hovered-over bar
+function showTooltip(objectNo, e)
+{
+    if(objectNo >= 0)
+    {
+        // Get mouse coordinates for showing the tooltip
+        var mousePos = getMousePos(e);
+        var posX = mousePos[0];
+        var posY = mousePos[1];
+
+        // Construct lines of text to show
+        var sheetLabel = currentDataset.dataSheets[objectNo];
+        var timeLabel = currentDataset.timeLabels[dataIterator];
+        var valueLabel = currentDataset.columnDataPerSheet[objectNo][variable1Col][dataIterator];
+
+        var lines = new Array();
+        lines.push(sheetLabel);
+        lines.push("(" + timeLabel + ")");
+        lines.push(valueLabel);
+
+        // Draw rectangle
+        drawTooltipRectangleAndText(lines, posX, posY);
+    }
+}
+
+function drawTooltipRectangleAndText(lines, posX, posY)
+{
+
+
+
+}
+
+// Parse mouse move event to figure out where the mouse cursor is
+function getMouseMoveObject(e)
+{
+    var mousePos = getMousePos(e);
+    var posX = mousePos[0];
+    var posY = mousePos[1];
+    // alert("Mouse move at (" + posX + ", " + posY + ")");
+
+    // Check if on a bar
+    var barNo = getBarNoFromMouseCoordinates(posX, posY);
+    // alert("(" + posX + ", " + posY + ") is on bar " + barNo)
+    return barNo;
+}
+
+function getBarNoFromMouseCoordinates(posX, posY)
+{
+    for (rectNo in hoverRects)
+    {
+        // alert(rectNo);
+        // alert(hoverRects[rectNo])
+        if (((posX >= hoverRects[rectNo][0]) && (posX <= hoverRects[rectNo][0] + hoverRects[rectNo][2])) && ((posY >= hoverRects[rectNo][1]) && (posY <= hoverRects[rectNo][1] + hoverRects[rectNo][3])))
+        {
+          return rectNo;
+        }
+    }
+    return -1;
+}
+
+
 // Parse mouse click to figure out which on-screen object was clicked
 function getClickedObject(e)
 {
-    var canvas = document.getElementById("stereo-canvas");
-    var context = canvas.getContext("2d");
-
     var centerPos = canvas.height / 2;
     var centerWidth = boxWidth * numBars + spaceBetweenBars * (numBars - 1) + centerLeftHorizontalMargin + centerRightHorizontalMargin;
 
-    var posX;
-    var posY;
-
-    // Need to check pageX/Y and clientX/Y in order to have cross-browser compatibility
-    if (e.pageX || e.pageY)
-    {
-        posX = e.pageX;
-        posY = e.pageY;
-    }   
-    else if (e.clientX || e.clientY)
-    {
-        posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-    }
-
-    // Correct using canvas offset (as well as the offset of the canvas's parent, which helps for Firefox's case)
-    posX -= (canvas.offsetLeft + canvas.offsetParent.offsetLeft);
-    posY -= (canvas.offsetTop + canvas.offsetParent.offsetTop);
+    var mousePos = getMousePos(e);
+    var posX = mousePos[0];
+    var posY = mousePos[1];
 
     if (((posX >= playButton.rectangle[0]) && (posX <= playButton.rectangle[0] + playButton.rectangle[2])) && ((posY >= playButton.rectangle[1]) && (posY <= playButton.rectangle[1] + playButton.rectangle[3])))
     {
@@ -788,6 +880,28 @@ function getClickedObject(e)
 
     return "";
 }
+
+function getMousePos(e)
+{
+    // Need to check pageX/Y and clientX/Y in order to have cross-browser compatibility
+    if (e.pageX || e.pageY)
+    {
+        posX = e.pageX;
+        posY = e.pageY;
+    }   
+    else if (e.clientX || e.clientY)
+    {
+        posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+
+    // Correct using canvas offset (as well as the offset of the canvas's parent, which helps for Firefox's case)
+    posX -= (canvas.offsetLeft + canvas.offsetParent.offsetLeft);
+    posY -= (canvas.offsetTop + canvas.offsetParent.offsetTop);
+
+    return (new Array(posX, posY));
+}
+
 
 function showVariable2Data()
 {
