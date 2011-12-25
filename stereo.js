@@ -5,6 +5,23 @@ var context;
 var level = 0;
 var testSign = 1;
 var isPlaying = false;
+var testDataLabels = new Array("Macedonia", "Malta", "Moldova", "Monaco", "Spain", "Holland", "Norway", "Poland", "Portugal", "Romania");
+var testData =
+    [   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+        [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10],
+        [10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1],
+        [-20, -18, -16, -14, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18],
+        [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+        [20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0, -2, -4, -6, -8, -10, -12, -14, -16, -18],
+        [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8],
+        [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1, 0, -1],
+        [-20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1]
+    ];
+
+
+var testDataTimes = new Array("1970", "1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987", "1988", "1989");
+var dataIterator;
 
 // Config values
 var boxWidth = 50;
@@ -12,7 +29,7 @@ var boxHeight = 6;
 var numBars = 10;
 var maxBoxes = 24;
 var spaceBetweenBoxes = 2;
-var spaceBetweenBars = 4;  
+var spaceBetweenBars = 2;  
 var timeStep = 0;
 
 var backgroundColor = "#111111";
@@ -178,6 +195,8 @@ function initDraw()
 
     canvas.addEventListener("click", onClick, false);
 
+    dataIterator = 0;
+
     playButton.init();
     stopButton.init();
     timeButton.init();
@@ -190,6 +209,21 @@ function process()
     var barNo = 0;
     var maxLevel = 1000;
 
+    if (isPlaying)
+    {
+        // Move on to next data point if there is data left
+        if (dataIterator < testDataTimes.length - 1)
+        {
+            // alert(dataIterator + " < " + testDataTimes.length);
+            dataIterator++;
+        }
+        // Otherwise, stop moving   
+        else
+        {
+            isPlaying = false;
+        }
+    }
+
     draw(numBars, barNo, maxLevel);
     setTimeout("process()", timeStep);
 }
@@ -197,9 +231,14 @@ function process()
 function draw(numBars, barNo, maxLevel)
 {
     var canvas = document.getElementById("stereo-canvas");
-    var context = canvas.getContext("2d")
+    var context = canvas.getContext("2d");
+
+    // alert("Drawing with dataIterator: " + dataIterator);
 
     context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // hard-coded
+    maxLevel = 20;
 
     drawBars(numBars, maxLevel);
 
@@ -219,24 +258,7 @@ function drawBars(numBars, maxLevel)
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
-
-        if (isPlaying){level += 3 * testSign;}
-
-        // If the level is beyond the maximum level, and positive,
-        // make it start going start
-        if (level > maxLevel)
-        {
-            testSign = -1;
-        }
-
-        // If the level is beyond the maximum level, and negative,
-        // make it start going up
-        if (level < maxLevel * (-1))
-        {
-            testSign = 1;
-        }
-
-        drawBar(barNo, level, maxLevel, maxBoxes);
+        drawBar(barNo, testData[barNo][dataIterator], maxLevel, maxBoxes);
     }
 }
 
@@ -347,15 +369,13 @@ function drawText()
     context.shadowBlur = barLabelShadowBlur;
     context.shadowColor = barLabelShadowColor;
 
-    var barLabelArray = new Array("Macedonia", "Malta", "Moldova", "Monaco", "Spain", "Holland", "Norway", "Poland", "Portugal", "Romania", "Russia", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "Ukraine");
-
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
         // Adding 0.5 to the position allows the text to be properly centered
         var x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
         var y = centerPos;
-        context.fillText(barLabelArray[barNo], x, y, boxWidth);
+        context.fillText(testDataLabels[barNo], x, y, boxWidth);
     }
 
     // Draw axis labels
@@ -450,7 +470,8 @@ function onClick(e)
 
             break;
         case "stopButton":
-            alert("stop button clicked!");
+            dataIterator = 0;
+            isPlaying = false;
             break;
         case "timeButton":
             // alert("time button clicked!");
