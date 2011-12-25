@@ -409,6 +409,9 @@ function updateVariableLabels()
         option.setAttribute("value", colNo);
         variable2optgroup.appendChild(option);
     }
+
+    variable1Col = 0;
+    variable2Col = 0;
 }
 
 function process()
