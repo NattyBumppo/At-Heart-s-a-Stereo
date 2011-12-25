@@ -1,8 +1,5 @@
 -Add automatically-updating key on the right to explain bar color for 2nd variable
 -Dynamically load data sets (and reflect this data in the other dropdowns)
 -Use data set information for bars
--Make play and stop button work
--Highlight play button when playing
--Be able to click left and right for advancing through time
 -Add instructions on the bottom
 -Add hover-over text
