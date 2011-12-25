@@ -1,5 +1,7 @@
 var canvas;
 var context;
+var timeout;
+
 
 // var alpha = 255;
 var level = 0;
@@ -338,7 +340,7 @@ function initDraw()
     currentButton.init();
     nextButton.init();
 
-    return setTimeout("process()", timeStep);
+    process();
 }
 
 function process()
@@ -362,7 +364,7 @@ function process()
     }
 
     draw(numBars, barNo, maxLevel);
-    setTimeout("process()", timeStep);
+    timeout = setTimeout("process()", timeStep);
 }
 
 function draw(numBars, barNo, maxLevel)
@@ -616,6 +618,26 @@ function onClick(e)
             // alert("time button clicked!");
             timeButton.quicken();
             break;
+        case "previousButton":
+            // alert("previous button clicked!");
+            isPlaying = false;
+            if (dataIterator > 0)
+            {
+                dataIterator--;
+            }
+            clearTimeout(timeout);
+            process();
+            break;
+        case "nextButton":
+            // alert("next button clicked!");
+            isPlaying = false;
+            if (dataIterator < testDataTimes.length - 1)
+            {
+                dataIterator++;
+            }
+            clearTimeout(timeout);
+            process();
+            break;
         default:
             // alert("Other click");
     }
@@ -663,7 +685,18 @@ function getClickedObject(e)
     if (((posX >= timeButton.rectangle[0]) && (posX <= timeButton.rectangle[0] + timeButton.rectangle[2])) && ((posY >= timeButton.rectangle[1]) && (posY <= timeButton.rectangle[1] + timeButton.rectangle[3])))
     {
         return "timeButton";
-    }    
+    }
+
+   if (((posX >= previousButton.rectangle[0]) && (posX <= previousButton.rectangle[0] + previousButton.rectangle[2])) && ((posY >= previousButton.rectangle[1]) && (posY <= previousButton.rectangle[1] + previousButton.rectangle[3])))
+    {
+        return "previousButton";
+    }
+
+   if (((posX >= nextButton.rectangle[0]) && (posX <= nextButton.rectangle[0] + nextButton.rectangle[2])) && ((posY >= nextButton.rectangle[1]) && (posY <= nextButton.rectangle[1] + nextButton.rectangle[3])))
+    {
+        return "nextButton";
+    }
+
 
     return "";
 }
