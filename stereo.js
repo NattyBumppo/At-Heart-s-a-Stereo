@@ -19,7 +19,6 @@ var testData =
         [-20, -19, -18, -17, -16, -15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1]
     ];
 
-
 var testDataTimes = new Array("1970", "1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987", "1988", "1989");
 var dataIterator;
 
@@ -60,15 +59,34 @@ var bottomBarHeight = 30;
 playButton = new Object();
 stopButton = new Object();
 timeButton = new Object();
+previousButton = new Object();
+currentButton = new Object();
+nextButton = new Object();
 
 playButton.scale = 0.5;
 stopButton.scale = 0.5;
 timeButton.scale = 0.5;
 playButton.offset = leftBarWidth + 4;
 stopButton.offset = -5;
-timeButton.offset = -10;
 
+timeButton.offset = -10;
 timeButton.verticalMargin = 4;
+
+previousButton.offset = 5;
+previousButton.scale = 1.6;
+previousButton.verticalMargin = 4;
+previousButton.color = new Array(192, 192, 192, 0.6);
+
+currentButton.offset = 5;
+currentButton.scale = 1.6;
+currentButton.verticalMargin = 4;
+currentButton.color = new Array(40, 40, 40, 1.0);
+
+nextButton.offset = 5;
+nextButton.scale = 1.6;
+nextButton.verticalMargin = 4;
+nextButton.color = new Array(192, 192, 192, 0.6);
+
 
 // Initializes the play/pause button
 playButton.init = function()
@@ -164,7 +182,7 @@ timeButton.draw = function()
     context.strokeStyle = buttonOutlineColor;
     context.fillStyle = buttonInsideColor;
     context.lineWidth = buttonOutlineThickness;
-    context.strokeRect(timeButton.rectangle[0], timeButton.rectangle[1], timeButton.rectangle[2], timeButton.rectangle[3]);
+    context.strokeRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
 
     // Draw the text in the middle
     context.fillStyle = barLabelColor;    
@@ -176,7 +194,7 @@ timeButton.draw = function()
 }
 
 // Make the time step decrease
-timeButton.advance = function()
+timeButton.quicken = function()
 {
     timeButton.value *= 2;
     if (timeButton.value == 32)
@@ -184,6 +202,122 @@ timeButton.advance = function()
         timeButton.value = 1;
     }
     timeStep = 512 / timeButton.value;
+}
+
+// Set up the dimensions for the previous button
+previousButton.init = function()
+{
+    previousButton.width = bottomBarHeight * 2.5;
+    previousButton.centerX = timeButton.centerX + (timeButton.width / 2) + previousButton.offset + (previousButton.width / 2) * previousButton.scale;
+    previousButton.centerY = playButton.centerY;
+
+    previousButton.rectangle = new Array(previousButton.centerX - (previousButton.width / 2) * previousButton.scale, previousButton.centerY - bottomBarHeight / 2 + previousButton.verticalMargin, previousButton.width * previousButton.scale, bottomBarHeight - previousButton.verticalMargin * 2);
+}
+
+// Draw the previous button
+previousButton.draw = function()
+{
+    // Draw the outer rectangle
+    context.strokeStyle = buttonOutlineColor;
+    context.lineWidth = buttonOutlineThickness;
+    context.strokeRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
+
+
+    // Draw the text for the previous button (if any data is applicable)
+    if (dataIterator > 0)
+    {
+        text = testDataTimes[dataIterator - 1];
+    }
+    else
+    {
+        text = "";
+    }
+
+    context.fillStyle = barLabelColor;    
+    context.font = barLabelFont;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(text, this.centerX, this.centerY);
+
+    // Layer over the text in the rectangle (to "gray out" the text)
+    context.fillStyle = "rgba(" + this.color[0] + ", " + this.color[1] + ", " + this.color[2] + ", " + this.color[3] + ")";
+    context.fillRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
+
+}
+
+// Set up the dimensions for the current button
+currentButton.init = function()
+{
+    currentButton.width = bottomBarHeight * 2.5;
+    currentButton.centerX = previousButton.centerX + (previousButton.width / 2) * previousButton.scale + currentButton.offset + (currentButton.width / 2) * currentButton.scale;
+    currentButton.centerY = playButton.centerY;
+
+    currentButton.rectangle = new Array(currentButton.centerX - (currentButton.width / 2) * currentButton.scale, currentButton.centerY - bottomBarHeight / 2 + currentButton.verticalMargin, currentButton.width * currentButton.scale, bottomBarHeight - currentButton.verticalMargin * 2);
+}
+
+// Draw the current button
+currentButton.draw = function()
+{
+
+    // Draw the inner rectangle (darker)
+    context.fillStyle = "rgba(" + this.color[0] + ", " + this.color[1] + ", " + this.color[2] + ", " + this.color[3] + ")";
+    context.fillRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);    
+
+    // Draw the outer rectangle
+    context.strokeStyle = buttonOutlineColor;
+    context.lineWidth = buttonOutlineThickness;
+    context.strokeRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
+
+    // Draw the text for the current button
+    text = testDataTimes[dataIterator];
+
+    context.fillStyle = barLabelColor;    
+    context.font = barLabelFont;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(text, this.centerX, this.centerY);
+
+
+}
+
+// Set up the dimensions for the next button
+nextButton.init = function()
+{
+    nextButton.width = bottomBarHeight * 2.5;
+    nextButton.centerX = currentButton.centerX + (currentButton.width / 2) * currentButton.scale + nextButton.offset + (nextButton.width / 2) * nextButton.scale;
+    nextButton.centerY = playButton.centerY;
+
+    nextButton.rectangle = new Array(nextButton.centerX - (nextButton.width / 2) * nextButton.scale, nextButton.centerY - bottomBarHeight / 2 + nextButton.verticalMargin, nextButton.width * nextButton.scale, bottomBarHeight - nextButton.verticalMargin * 2);
+}
+
+// Draw the next button
+nextButton.draw = function()
+{
+    // Draw the outer rectangle
+    context.strokeStyle = buttonOutlineColor;
+    context.lineWidth = buttonOutlineThickness;
+    context.strokeRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
+
+    // Draw the text for the next button (if any data is applicable)
+    if (dataIterator < testDataTimes.length - 1)
+    {
+        text = testDataTimes[dataIterator + 1];
+    }
+    else
+    {
+        text = "";
+    }
+
+    context.fillStyle = barLabelColor;    
+    context.font = barLabelFont;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(text, this.centerX, this.centerY);
+
+    // Layer over the text in the rectangle (to "gray out" the text)
+    context.fillStyle = "rgba(" + this.color[0] + ", " + this.color[1] + ", " + this.color[2] + ", " + this.color[3] + ")";
+    context.fillRect(this.rectangle[0], this.rectangle[1], this.rectangle[2], this.rectangle[3]);
+
 }
 
 function initDraw()
@@ -200,6 +334,9 @@ function initDraw()
     playButton.init();
     stopButton.init();
     timeButton.init();
+    previousButton.init();
+    currentButton.init();
+    nextButton.init();
 
     return setTimeout("process()", timeStep);
 }
@@ -246,7 +383,6 @@ function draw(numBars, barNo, maxLevel)
     drawLeftBar();
     drawBottomBar();
     drawButtons();
-
     drawText();
 }
 
@@ -347,6 +483,9 @@ function drawButtons()
     playButton.draw();
     stopButton.draw();
     timeButton.draw();
+    previousButton.draw();
+    currentButton.draw();
+    nextButton.draw();
 }
 
 // Draws all of the on-screen text for the application
@@ -475,7 +614,7 @@ function onClick(e)
             break;
         case "timeButton":
             // alert("time button clicked!");
-            timeButton.advance();
+            timeButton.quicken();
             break;
         default:
             // alert("Other click");
