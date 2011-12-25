@@ -1,5 +1,3 @@
 -Add automatically-updating key on the right to explain bar color for 2nd variable
--Dynamically load data sets (and reflect this data in the other dropdowns)
--Use data set information for bars
 -Add instructions on the bottom
 -Add hover-over text
