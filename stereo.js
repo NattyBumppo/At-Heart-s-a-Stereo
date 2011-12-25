@@ -321,7 +321,8 @@ function initDraw()
 
     dataIterator = 0;
 
-    setElementValues();
+    setUpElements();
+    updateVariableLabels();
 
     playButton.init();
     stopButton.init();
@@ -333,8 +334,10 @@ function initDraw()
     process();
 }
 
-function setElementValues()
+// Set up initial state of dynamic HTML elements on page
+function setUpElements()
 {
+    // Set up dataset selector
     var datasetSelector = document.getElementById("datasetSelector");
     var optgroup = document.createElement("optgroup");
 
@@ -348,8 +351,63 @@ function setElementValues()
     }
     datasetSelector.appendChild(optgroup);
 
-    // come back
+    // Set up variable 1 selector
+    var variable1Selector = document.getElementById("variable1Selector");
+    optgroup = document.createElement("optgroup");
+    optgroup.setAttribute("id", "variable1optgroup");
+    variable1Selector.appendChild(optgroup);
 
+    // Set up variable 2 selector
+    var variable2Selector = document.getElementById("variable2Selector");
+    optgroup = document.createElement("optgroup");
+    optgroup.setAttribute("id", "variable2optgroup");
+    variable2Selector.appendChild(optgroup);
+
+}
+
+// Use the current selected dataset to load variables into the
+// variable 1 and variable 2 selectors 
+function updateVariableLabels()
+{
+    // Load variable 1 data labels from dataset
+    var variable1optgroup = document.getElementById("variable1optgroup");
+    
+    // First, depopulate of old dataset's values, if necessary
+    if (variable1optgroup.hasChildNodes())
+    {
+        while (variable1optgroup.childNodes.length >= 1)
+        {
+            variable1optgroup.removeChild(variable1optgroup.firstChild);
+        }
+    }
+
+    // Now, repopulate with new dataset's values
+    for (colNo in currentDataset.columnLabels)
+    {
+        var option = new Option(currentDataset.columnLabels[colNo])
+        option.setAttribute("value", colNo);
+        variable1optgroup.appendChild(option);
+    }
+
+    // Load variable 2 data labels from dataset  
+
+    var variable2optgroup = document.getElementById("variable2optgroup");
+    
+    // First, depopulate of old dataset's values, if necessary
+    if (variable2optgroup.hasChildNodes())
+    {
+        while (variable2optgroup.childNodes.length >= 1)
+        {
+            variable2optgroup.removeChild(variable2optgroup.firstChild);
+        }
+    }
+
+    for (colNo in currentDataset.columnLabels)
+    {
+        var option = new Option(currentDataset.columnLabels[colNo])
+        option.setAttribute("value", colNo);
+        variable2optgroup.appendChild(option);
+    }
 }
 
 function process()
@@ -724,6 +782,8 @@ function datasetChange()
     var datasetNo = document.getElementById("datasetSelector").value;
     // alert("Changing to dataset: " + datasetValue);
     currentDataset = datasets[datasetNo]
+    updateVariableLabels()
+    dataIterator = 0
 }
 
 function variable1change()
