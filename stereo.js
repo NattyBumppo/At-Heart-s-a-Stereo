@@ -2,8 +2,9 @@ var canvas;
 var context;
 var timeout;
 
-var currentDataset = dataset1
-var colNo = 0
+var currentDataset = dataset1;
+var variable1Col = 0;
+var variable2Col = 0;
 
 // var alpha = 255;
 var level = 0;
@@ -413,7 +414,7 @@ function updateVariableLabels()
 function process()
 {
     var barNo = 0;
-    var maxLevel = currentDataset.columnMaxValues[colNo];
+    var maxLevel = currentDataset.columnMaxValues[variable1Col];
 
     if (isPlaying)
     {
@@ -461,7 +462,7 @@ function drawBars(numBars, maxLevel)
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
-        drawBar(barNo, currentDataset.columnDataPerSheet[barNo][colNo][dataIterator], maxLevel, maxBoxes);
+        drawBar(barNo, currentDataset.columnDataPerSheet[barNo][variable1Col][dataIterator], maxLevel, maxBoxes);
     }
 }
 
@@ -585,8 +586,8 @@ function drawText()
     }
 
     // Draw axis labels
-    var topLabel = currentDataset.axisLabels[colNo][0];
-    var bottomLabel = currentDataset.axisLabels[colNo][1];
+    var topLabel = currentDataset.axisLabels[variable1Col][0];
+    var bottomLabel = currentDataset.axisLabels[variable1Col][1];
 
     // Save context to restore later
     context.save();
@@ -781,20 +782,21 @@ function datasetChange()
 {
     var datasetNo = document.getElementById("datasetSelector").value;
     // alert("Changing to dataset: " + datasetValue);
-    currentDataset = datasets[datasetNo]
-    updateVariableLabels()
-    dataIterator = 0
+    currentDataset = datasets[datasetNo];
+    updateVariableLabels();
+    dataIterator = 0;
 }
 
-function variable1change()
+function variable1Change()
 {
-
-
+    // alert("Changing variable 1");
+    variable1Col = document.getElementById("variable1Selector").value;
 }
 
-function variable2change()
+function variable2Change()
 {
-
+    // alert("Changing variable 2");
+    variable2Col = document.getElementById("variable2Selector").value;
 
 }
 
