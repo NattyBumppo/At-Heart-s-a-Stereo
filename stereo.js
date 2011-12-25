@@ -2,7 +2,6 @@ var canvas;
 var context;
 var timeout;
 
-
 // var alpha = 255;
 var level = 0;
 var testSign = 1;
@@ -89,7 +88,6 @@ nextButton.scale = 1.6;
 nextButton.verticalMargin = 4;
 nextButton.color = new Array(192, 192, 192, 0.6);
 
-
 // Initializes the play/pause button
 playButton.init = function()
 {
@@ -125,11 +123,11 @@ playButton.draw = function()
     else
     {
         // Draw Pause Button
-        context.fillRect(playButton.rectangle[0], playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
-        context.strokeRect(playButton.rectangle[0], playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
+        context.fillRect(playButton.rectangle[0], playButton.rectangle[1], playButton.rectangle[2] / 2 - 3, playButton.rectangle[3]);
+        context.strokeRect(playButton.rectangle[0], playButton.rectangle[1], playButton.rectangle[2] / 2 - 3, playButton.rectangle[3]);
 
-        context.fillRect(playButton.rectangle[0] + playButton.rectangle[2] / 2 + 4, playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
-        context.strokeRect(playButton.rectangle[0] + playButton.rectangle[2] / 2 + 4, playButton.rectangle[1], playButton.rectangle[2] / 2 - 4, playButton.rectangle[3]);
+        context.fillRect(playButton.rectangle[0] + playButton.rectangle[2] / 2 + 3, playButton.rectangle[1], playButton.rectangle[2] / 2 - 3, playButton.rectangle[3]);
+        context.strokeRect(playButton.rectangle[0] + playButton.rectangle[2] / 2 + 3, playButton.rectangle[1], playButton.rectangle[2] / 2 - 3, playButton.rectangle[3]);
     }
 }
 
@@ -364,6 +362,7 @@ function process()
     }
 
     draw(numBars, barNo, maxLevel);
+
     timeout = setTimeout("process()", timeStep);
 }
 
@@ -646,7 +645,6 @@ function onClick(e)
 // Parse mouse click to figure out which on-screen object was clicked
 function getClickedObject(e)
 {
-
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d");
 
