@@ -837,23 +837,8 @@ function showTooltip(objectNo, posX, posY)
             lines.push(variable2NameLabel + ": " + variable2ValueLabel);
         }
 
-        // Draw rectangle
-        drawTooltipRectangleAndText(lines, posX, posY);
-
-        // Draw text
-        
-        var vOffset = 2;
-        var hOffset = 2;
-        for (lineNo in lines)
-        {
-
-            context.fillStyle = tooltipFontColor;    
-            context.font = tooltipFont;
-            context.textAlign = 'left';
-            context.textBaseline = 'top';
-            context.fillText(lines[lineNo], posX + tooltipCursorDistanceX + hOffset, posY + vOffset + tooltipCursorDistanceY);
-            vOffset += tooltipFontPt;
-        }
+        // Draw rectangle and text
+        drawTooltipRectangleAndText(lines, posX, posY, objectNo);
 
         // Set global so that the tooltip continues to be displayed as long as it's applicable
         currentTooltipDisplay = true;
@@ -862,7 +847,7 @@ function showTooltip(objectNo, posX, posY)
     }
 }
 
-function drawTooltipRectangleAndText(lines, posX, posY)
+function drawTooltipRectangleAndText(lines, posX, posY, objectNo)
 {
     var rectHeight = (tooltipFontPt + 1) * (lines.length);
     var rectWidth = 0;
@@ -877,11 +862,43 @@ function drawTooltipRectangleAndText(lines, posX, posY)
     // alert("rectWidth: " + rectWidth);
     // Draw rectangle
     context.fillStyle = tooltipColor;
-    context.fillRect(posX + tooltipCursorDistanceX, posY + tooltipCursorDistanceY, rectWidth, rectHeight);
+    
+    // If on the left side of the bars, render the tooltip to the right;
+    // otherwise, render it to the left
+    if (objectNo < numBars / 2)
+    {
+        context.fillRect(posX + tooltipCursorDistanceX, posY + tooltipCursorDistanceY, rectWidth, rectHeight);
+    }
+    else
+    {
+        context.fillRect(posX - tooltipCursorDistanceX - rectWidth, posY + tooltipCursorDistanceY, rectWidth, rectHeight);
+    }
+
+    // Draw text
+    var vOffset = 2;
+    var hOffset = 2;
+    for (lineNo in lines)
+    {
+        context.fillStyle = tooltipFontColor;    
+        context.font = tooltipFont;
+        context.textAlign = 'left';
+        context.textBaseline = 'top';
+        // Draw either to the left or the right of the cursor, as above with the rectangle
+        if (objectNo < numBars / 2)
+        {
+            context.fillText(lines[lineNo], posX + tooltipCursorDistanceX + hOffset, posY + vOffset + tooltipCursorDistanceY);
+        }
+        else
+        {
+            context.fillText(lines[lineNo], posX - tooltipCursorDistanceX - rectWidth + hOffset, posY + vOffset + tooltipCursorDistanceY);
+        }        
+            
+        vOffset += tooltipFontPt;
+    }
+
 
     prevPosX = posX;
     prevPosY = posY;
-
 }
 
 // Parse mouse move event to figure out where the mouse cursor is
