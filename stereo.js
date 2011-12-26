@@ -564,7 +564,7 @@ function drawBar(barNo, level, maxLevel, maxBoxes, usingSecondVariable)
         {
             var variable2Value = currentDataset.columnDataPerSheet[barNo][variable2Col][dataIterator];
             var variable2Max = currentDataset.columnMaxValues[variable2Col];
-            context.fillStyle = getBoxColor(variable2Value, variable2Max);
+            context.fillStyle = getBoxColor(Math.abs(variable2Value), variable2Max);
         }
         else
         {
@@ -1073,7 +1073,7 @@ function displayColorExplanation()
 
     var colorExplanationText = "Bar Color (+/-)<br /><br />";
 
-    colorExplanationText += "0 to " + (upperBound / 4) + "<br />";
+    colorExplanationText += "0 to " + (upperBound / 4);
     colorExplanationText += colorRectangleHTML(0);
     colorExplanationText += (upperBound / 4) + " to " + (upperBound / 4) * 2 + "<br />";
     colorExplanationText += colorRectangleHTML(1);
@@ -1084,14 +1084,13 @@ function displayColorExplanation()
 
     colorExplanation.innerHTML = colorExplanationText;
 
-
 }
 
 // Returns the HTML for the gradient rectangle referenced
 function colorRectangleHTML(rectNo)
 {
     var string = "";
-    string += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">';
+    //string += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">';
     var startColor, endColor;
     
     switch(rectNo)
@@ -1122,7 +1121,28 @@ function colorRectangleHTML(rectNo)
             break;  
     }
 
-    string += '<linearGradient id="grad' + rectNo + '" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:' + startColor + ';stop-opacity:1" /><stop offset="100%" style="stop-color:' + endColor + ';stop-opacity:1" /></linearGradient></defs><rect width="100" height="30" style="fill:url(#grad' + rectNo + ');stroke-width:1;"/></svg>';
+    //string += '<linearGradient id="grad' + rectNo + '" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:' + startColor + ';stop-opacity:1" /><stop offset="100%" style="stop-color:' + endColor + ';stop-opacity:1" /></linearGradient></defs><rect width="100" height="30" fill="url(#grad' + rectNo + ')" stroke-width="1" /></svg>';
+
+    var userAgent = navigator.userAgent;
+
+    if ((userAgent.indexOf("Chrome") != -1) || (userAgent.indexOf("Safari") != -1))
+    {
+        // Detected that the user is running Chrome or Safari (or at least claims to be doing so)
+        // alert("Chrome!");
+        string += '<div style="background-image: -webkit-gradient(linear, left top, right bottom, color-stop(0, ' + startColor + '), color-stop(1, ' + endColor +')); width:100px; height:20px;"></div>';
+    }
+    else if (userAgent.indexOf("Firefox") != -1)
+    {
+        // Detected that the user is running Firefox (or at least claims to be doing so)
+        // alert("Firefox!");
+        string += '<div style="background-image: -moz-linear-gradient(top left, ' + startColor + ' 0%, ' + endColor + ' 100%); width:100px; height:20px;"></div>';
+    }
+    else
+    {
+        alert("Different user agent: " + userAgent);
+    }
+
+    
 
     // alert("rectangle " + rectNo);
     // alert(startColor + " to " + endColor);
