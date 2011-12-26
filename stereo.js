@@ -518,21 +518,24 @@ function drawBars(numBars, maxLevel)
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d")
 
+    var usingSecondVariable = (document.getElementById("variable2element").style.visibility != "hidden");
+
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
-        drawBar(barNo, currentDataset.columnDataPerSheet[barNo][variable1Col][dataIterator], maxLevel, maxBoxes);
+        drawBar(barNo, currentDataset.columnDataPerSheet[barNo][variable1Col][dataIterator], maxLevel, maxBoxes, usingSecondVariable);
     }
 }
 
 
 // Maps level to a box level, and draws it
-function drawBar(barNo, level, maxLevel, maxBoxes)
+function drawBar(barNo, level, maxLevel, maxBoxes, usingSecondVariable)
 {
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d");
 
     boxesToLight = maxBoxes * (level / maxLevel);
+
     // In case boxesToLight was multiplied by a negative level, reset to positive
     if (boxesToLight < 0)
     {
@@ -556,7 +559,18 @@ function drawBar(barNo, level, maxLevel, maxBoxes)
             // Draw from the center down
             y = centerPos + spaceBetweenBoxes + centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxNo;
         }
-        context.fillStyle = getBoxColor(boxNo, maxBoxes);
+
+        if (usingSecondVariable)
+        {
+            var variable2Value = currentDataset.columnDataPerSheet[barNo][variable2Col][dataIterator];
+            var variable2Max = currentDataset.columnMaxValues[variable2Col];
+            context.fillStyle = getBoxColor(variable2Value, variable2Max);
+        }
+        else
+        {
+            context.fillStyle = getBoxColor(boxNo, maxBoxes);
+        }
+
         context.fillRect(x, y, boxWidth, boxHeight);
     }
 }
@@ -857,6 +871,7 @@ function showTooltip(objectNo, posX, posY)
         lines.push("(" + timeLabel + ")");
         lines.push(variable1NameLabel + ": " + variable1ValueLabel);
 
+        // Add info for variable 2 if it's displayed as well
         if (document.getElementById("variable2element").style.visibility != "hidden")
         {
             lines.push(variable2NameLabel + ": " + variable2ValueLabel);
@@ -920,7 +935,6 @@ function drawTooltipRectangleAndText(lines, posX, posY, objectNo)
             
         vOffset += tooltipFontPt;
     }
-
 
     prevPosX = posX;
     prevPosY = posY;
@@ -990,7 +1004,6 @@ function getClickedObject(e)
         return "nextButton";
     }
 
-
     return "";
 }
 
@@ -1021,19 +1034,18 @@ function showVariable2Data()
     document.getElementById("variable2element").style.visibility = 'visible';
     document.getElementById("colorExplanation").style.visibility = 'visible';
 
+    variable2Change();
 }
 
 function hideVariable2Data()
 {
     document.getElementById("variable2element").style.visibility = 'hidden';
     document.getElementById("colorExplanation").style.visibility = 'hidden';
-
 }
 
 function datasetChange()
 {
     var datasetNo = document.getElementById("datasetSelector").value;
-    // alert("Changing to dataset: " + datasetValue);
     currentDataset = datasets[datasetNo];
     updateVariableLabels();
     dataIterator = 0;
@@ -1041,15 +1053,83 @@ function datasetChange()
 
 function variable1Change()
 {
-    // alert("Changing variable 1");
     variable1Col = document.getElementById("variable1Selector").value;
 }
 
 function variable2Change()
 {
-    // alert("Changing variable 2");
     variable2Col = document.getElementById("variable2Selector").value;
+    displayColorExplanation();
+}
+
+function displayColorExplanation()
+{
+    var colorExplanation = document.getElementById("colorExplanation");
+
+    // Add color explanation data
+
+    // Lower bound (signless) is always zero; upper-bound is determined from the data
+    var upperBound = currentDataset.columnMaxValues[variable2Col];
+
+    var colorExplanationText = "Bar Color (+/-)<br /><br />";
+
+    colorExplanationText += "0 to " + (upperBound / 4) + "<br />";
+    colorExplanationText += colorRectangleHTML(0);
+    colorExplanationText += (upperBound / 4) + " to " + (upperBound / 4) * 2 + "<br />";
+    colorExplanationText += colorRectangleHTML(1);
+    colorExplanationText += (upperBound / 4) * 2 + " to " + (upperBound / 4) * 3 + "<br />";
+    colorExplanationText += colorRectangleHTML(2);
+    colorExplanationText += (upperBound / 4) * 3 + " to " + upperBound + "<br />";
+    colorExplanationText += colorRectangleHTML(3);
+
+    colorExplanation.innerHTML = colorExplanationText;
+
 
 }
+
+// Returns the HTML for the gradient rectangle referenced
+function colorRectangleHTML(rectNo)
+{
+    var string = "";
+    string += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">';
+    var startColor, endColor;
+    
+    switch(rectNo)
+    {
+        // First quarter (green to halfway between yellow and green)
+        case 0:
+            startColor = "rgb(0, 255, 0)";
+            endColor = "rgb(127, 127, 0)";
+            break;
+        // Second quarter (halfway between yellow and green to yellow)
+        case 1:
+            startColor = "rgb(127, 127, 0)";
+            endColor = "rgb(255, 255, 0)";
+            break;
+        // Third quarter (yellow to halfway between yellow and red)
+        case 2:
+            startColor = "rgb(255, 255, 0)";
+            endColor = "rgb(255, 127, 0)";
+            break;
+        // Fourth quarter (halfway between yellow and red to red)
+        case 3:
+            startColor = "rgb(255, 127, 0)";
+            endColor = "rgb(255, 0, 0)";
+            break;
+        default:
+            startColor = "rgb(0, 0, 0)";
+            endColor = "rgb(0, 0, 0)";
+            break;  
+    }
+
+    string += '<linearGradient id="grad' + rectNo + '" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:' + startColor + ';stop-opacity:1" /><stop offset="100%" style="stop-color:' + endColor + ';stop-opacity:1" /></linearGradient></defs><rect width="100" height="30" style="fill:url(#grad' + rectNo + ');stroke-width:1;"/></svg>';
+
+    // alert("rectangle " + rectNo);
+    // alert(startColor + " to " + endColor);
+    // alert(string);
+    
+    return string;
+}
+
 
 
