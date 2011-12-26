@@ -2,6 +2,12 @@ var canvas;
 var context;
 var timeout;
 var hoverRects = new Array();
+var prevPosX;
+var prevPosY;
+
+var readyToAdvance = true;
+
+var testint = 0;
 
 var currentDataset = dataset1;
 var variable1Col = 0;
@@ -9,7 +15,6 @@ var variable2Col = 0;
 
 // var alpha = 255;
 var level = 0;
-var testSign = 1;
 var isPlaying = false;
 var dataIterator;
 
@@ -48,6 +53,16 @@ var bottomBarOffset = 0;
 var bottomBarWidth = 640;
 var bottomBarColor = "#444444";
 var bottomBarHeight = 30;
+
+var tooltipColor = "rgba(0, 255, 200, 0.7)";
+var tooltipFontPt = 12
+var tooltipFont = tooltipFontPt + "px sans-serif";
+var tooltipFontColor = "#000000";
+var tooltipCursorDistanceX = 8;
+var tooltipCursorDistanceY = 4;
+var currentTooltipDisplay = false;
+var currentTooltipPos = new Array();
+var currentTooltipBarNo = -1;
 
 playButton = new Object();
 stopButton = new Object();
@@ -421,24 +436,33 @@ function process()
     var barNo = 0;
     var maxLevel = currentDataset.columnMaxValues[variable1Col];
 
-    if (isPlaying)
-    {
-        // Move on to next data point if there is data left
-        if (dataIterator < currentDataset.timeLabels.length - 1)
-        {
-            // alert(dataIterator + " < " + currentDataset.timeLabels.length);
-            dataIterator++;
-        }
-        // Otherwise, stop moving   
-        else
-        {
-            isPlaying = false;
-        }
-    }
-
     draw(numBars, barNo, maxLevel);
 
-    timeout = setTimeout("process()", timeStep);
+    if (readyToAdvance)
+    {
+        if (isPlaying)
+        {
+            // Move on to next data point if there is data left
+            if (dataIterator < currentDataset.timeLabels.length - 1)
+            {
+                // alert(dataIterator + " < " + currentDataset.timeLabels.length);
+                dataIterator++;
+            }
+            // Otherwise, stop moving   
+            else
+            {
+                isPlaying = false;
+            }
+        }
+        readyToAdvance = false;
+        timeout = setTimeout("advanceTime()", timeStep);
+    }
+    timeout = setTimeout("process()", 16);
+}
+
+function advanceTime()
+{
+    readyToAdvance = true;
 }
 
 function draw(numBars, barNo, maxLevel)
@@ -458,6 +482,10 @@ function draw(numBars, barNo, maxLevel)
     drawButtons();
     drawText();
     setupTooltips();
+    if (currentTooltipDisplay)
+    {
+        showTooltip(currentTooltipBarNo, currentTooltipPos[0], currentTooltipPos[1]);
+    }
 }
 
 function drawBars(numBars, maxLevel)
@@ -772,44 +800,87 @@ function onMouseMove(e)
     var barNo = getMouseMoveObject(e);
     if (barNo == -1)
     {
-        // Not on a bar
-        // alert("not on a bar!");
+        // Not on a bar, so don't display (last frame's) tooltip
+        currentTooltipDisplay = false;
     }
     else
-    {
-        showTooltip(barNo, e);
-    }
-}
-
-// Show a tooltip corresponding to the currently hovered-over bar
-function showTooltip(objectNo, e)
-{
-    if(objectNo >= 0)
     {
         // Get mouse coordinates for showing the tooltip
         var mousePos = getMousePos(e);
         var posX = mousePos[0];
         var posY = mousePos[1];
 
+        showTooltip(barNo, mousePos[0], mousePos[1]);
+    }
+}
+
+// Show a tooltip corresponding to the currently hovered-over bar
+function showTooltip(objectNo, posX, posY)
+{
+    if(objectNo >= 0)
+    {
         // Construct lines of text to show
         var sheetLabel = currentDataset.dataSheets[objectNo];
         var timeLabel = currentDataset.timeLabels[dataIterator];
-        var valueLabel = currentDataset.columnDataPerSheet[objectNo][variable1Col][dataIterator];
+        var variable1NameLabel = currentDataset.columnLabels[variable1Col];
+        var variable1ValueLabel = currentDataset.columnDataPerSheet[objectNo][variable1Col][dataIterator];
+        var variable2NameLabel = currentDataset.columnLabels[variable2Col];
+        var variable2ValueLabel = currentDataset.columnDataPerSheet[objectNo][variable2Col][dataIterator];
 
         var lines = new Array();
         lines.push(sheetLabel);
         lines.push("(" + timeLabel + ")");
-        lines.push(valueLabel);
+        lines.push(variable1NameLabel + ": " + variable1ValueLabel);
+
+        if (document.getElementById("variable2element").style.visibility != "hidden")
+        {
+            lines.push(variable2NameLabel + ": " + variable2ValueLabel);
+        }
 
         // Draw rectangle
         drawTooltipRectangleAndText(lines, posX, posY);
+
+        // Draw text
+        
+        var vOffset = 2;
+        var hOffset = 2;
+        for (lineNo in lines)
+        {
+
+            context.fillStyle = tooltipFontColor;    
+            context.font = tooltipFont;
+            context.textAlign = 'left';
+            context.textBaseline = 'top';
+            context.fillText(lines[lineNo], posX + tooltipCursorDistanceX + hOffset, posY + vOffset + tooltipCursorDistanceY);
+            vOffset += tooltipFontPt;
+        }
+
+        // Set global so that the tooltip continues to be displayed as long as it's applicable
+        currentTooltipDisplay = true;
+        currentTooltipPos = new Array(posX, posY);
+        currentTooltipBarNo = objectNo;
     }
 }
 
 function drawTooltipRectangleAndText(lines, posX, posY)
 {
+    var rectHeight = (tooltipFontPt + 1) * (lines.length);
+    var rectWidth = 0;
+    // Get the width
+    for (lineNo in lines)
+    {
+        if (lines[lineNo].length * (tooltipFontPt * 2 / 3) > rectWidth)
+        {
+            rectWidth = lines[lineNo].length * (tooltipFontPt * 2 / 3);
+        }
+    }
+    // alert("rectWidth: " + rectWidth);
+    // Draw rectangle
+    context.fillStyle = tooltipColor;
+    context.fillRect(posX + tooltipCursorDistanceX, posY + tooltipCursorDistanceY, rectWidth, rectHeight);
 
-
+    prevPosX = posX;
+    prevPosY = posY;
 
 }
 
