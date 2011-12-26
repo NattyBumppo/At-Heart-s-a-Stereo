@@ -30,7 +30,8 @@ var timeStep = 0;
 var backgroundColor = "#111111";
 var centerColor = "#444444";
 var barLabelColor = "#FFFFFF";
-var barLabelFont = "12px sans-serif";
+var barLabelFontPt = "12"
+var barLabelFont = barLabelFontPt + "px sans-serif";
 var barLabelShadowOffsetX = 1;
 var barLabelShadowOffsetY = 1;
 var barLabelShadowBlur = 1;
@@ -652,10 +653,86 @@ function drawText()
     var barNo;
     for(barNo = 0; barNo < numBars; barNo++)
     {
+        var lines = new Array(currentDataset.dataSheets[barNo], "");
+        
+        // Make font smaller and smaller until it fits
+        var fits = (context.measureText(lines[0]).width < boxWidth);
+        if(!fits)
+        {
+            // If the line can be split up into two lines, do so first
+            if (isSplittable(lines[0]) && lines[1] == "")
+            {
+                // alert("Slicing up " + lines[0]);
+                var splitArray = lines[0].split(" ");
+                
+                // Now find the pair of lines with the shortest maximum length
+                var maxLength = 1000;
+                var slicePoint = 0;
+                for (var i = 1; i < splitArray.length; i++)
+                {
+                    // Get the maximum measured length between the two slices
+                    // (joined back together with spaces after the split)
+                    var localMax = Math.max(context.measureText(splitArray.slice(0, i).join(" ")).width, context.measureText(splitArray.slice(i).join(" ")).width);
+                    // alert("localMax: " + localMax);
+                    // We want to minimize the maximum length
+                    if (localMax < maxLength)
+                    {
+                        // alert(localMax + " < " + maxLength);
+                        maxLength = localMax;
+                        slicePoint = i;
+                    }
+                }
+                // alert("slicePoint: " + slicePoint)
+                // At this point, we've determined the best way to split the strings
+                // alert("The best way to split these strings is " + splitArray.slice(0, slicePoint).join(" ") + " / " + splitArray.slice(slicePoint).join(" "));
+                lines[0] = splitArray.slice(0, slicePoint).join(" ");
+                lines[1] = splitArray.slice(slicePoint).join(" ");
+            }
+
+            // Now, re-check if both lines fit
+            fits = ((context.measureText(lines[0]).width < boxWidth) && (context.measureText(lines[1]).width) < boxWidth);
+        }
+
+        // Save old font
+        var oldBarLabelFontPt = barLabelFontPt;
+        var oldBarLabelFont = barLabelFont;
+
+        // If it still doesn't fit, decrease font size until it does
+        while(!fits)
+        {
+            barLabelFontPt--;
+            barLabelFont = barLabelFontPt + "px sans-serif";
+            context.font = barLabelFont;
+            fits = ((context.measureText(lines[0]).width < boxWidth) && (context.measureText(lines[1]).width) < boxWidth);
+
+            //alert("Calculated width in pixels of '" + barLabel + "' in " + barLabelFontPt + "pt font: " + context.measureText(barLabel).width);
+            //alert("Fits: " + fits);
+
+        }
+
+
         // Adding 0.5 to the position allows the text to be properly centered
         var x = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * (barNo + 0.5);
         var y = centerPos;
-        context.fillText(currentDataset.dataSheets[barNo], x, y, boxWidth);
+
+        // alert("lines: " + lines);
+        // Single line
+        if (lines[1] == "")
+        {
+            context.fillText(lines[0], x, y, boxWidth);
+        }
+        // Two lines
+        else
+        {
+            context.fillText(lines[0], x, y - centerHeight / 4 + 2, boxWidth);
+            context.fillText(lines[1], x, y + centerHeight / 4 - 2, boxWidth);
+        }
+
+        // Restore font
+        barLabelFontPt = oldBarLabelFontPt;
+        barLabelFont = oldBarLabelFont;
+        context.font = barLabelFont;
+
     }
 
     // Draw axis labels
@@ -692,6 +769,13 @@ function drawText()
     context.shadowOffsetY = 0;
     context.shadowBlur = 0;
     context.shadowColor = "#000000";
+}
+
+// Looks at 
+function isSplittable(line)
+{
+    // Returns true if a space is found in the string; false otherwise
+    return (line.indexOf(" ") != -1);
 }
 
 function setupTooltips()
@@ -1049,17 +1133,20 @@ function datasetChange()
     currentDataset = datasets[datasetNo];
     updateVariableLabels();
     dataIterator = 0;
+    // alert("Dataset changed");
 }
 
 function variable1Change()
 {
     variable1Col = document.getElementById("variable1Selector").value;
+    // alert("Variable 1 changed");
 }
 
 function variable2Change()
 {
     variable2Col = document.getElementById("variable2Selector").value;
     displayColorExplanation();
+    // alert("Variable 2 changed");
 }
 
 function displayColorExplanation()
@@ -1139,7 +1226,7 @@ function colorRectangleHTML(rectNo)
     }
     else
     {
-        alert("Different user agent: " + userAgent);
+        // alert("Different user agent: " + userAgent);
     }
 
     
