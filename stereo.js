@@ -35,7 +35,7 @@ var barLabelShadowOffsetX = 1;
 var barLabelShadowOffsetY = 1;
 var barLabelShadowBlur = 1;
 var barLabelShadowColor = "#000000";
-var buttonOutlineColor = "#FFFFFF";
+var buttonOutlineColor = "#DDDDDD";
 var buttonInsideColor = "#999999";
 var buttonOutlineThickness = 1;
 
@@ -72,10 +72,10 @@ currentButton = new Object();
 nextButton = new Object();
 
 playButton.scale = 0.5;
-stopButton.scale = 0.5;
+stopButton.scale = 0.4;
 timeButton.scale = 0.5;
 playButton.offset = leftBarWidth + 4;
-stopButton.offset = -5;
+stopButton.offset = -2;
 
 timeButton.offset = -10;
 timeButton.verticalMargin = 4;
@@ -113,6 +113,7 @@ playButton.draw = function()
     context.strokeStyle = buttonOutlineColor;
     context.fillStyle = buttonInsideColor;
     context.lineWidth = buttonOutlineThickness;
+    context.lineCap = "round";
 
     if(!isPlaying)
     {
@@ -142,16 +143,40 @@ playButton.draw = function()
 stopButton.draw = function()
 {
     // Draw Stop Button
+    /* Commenting out to replace the square stop button with an arrow
     context.beginPath();
     context.moveTo(stopButton.rectangle[0], stopButton.rectangle[1]);
     context.lineTo(stopButton.rectangle[0] + stopButton.rectangle[2], stopButton.rectangle[1]);
     context.lineTo(stopButton.rectangle[0] + stopButton.rectangle[2], stopButton.rectangle[1] + stopButton.rectangle[3]);
     context.lineTo(stopButton.rectangle[0], stopButton.rectangle[1] + stopButton.rectangle[3]);
     context.lineTo(stopButton.rectangle[0], stopButton.rectangle[1]);
+    */
 
-    context.fill();
+    context.strokeStyle = buttonOutlineColor;
+    context.lineWidth = buttonOutlineThickness * 2;
+    context.lineCap = "round";
+
+    // Draw arc of circle of reset button
+    var x = (stopButton.rectangle[0] + stopButton.rectangle[2] / 2);
+    var y = (stopButton.rectangle[1] + stopButton.rectangle[3] / 2);
+    var radius = (stopButton.rectangle[2] / 2);
+    var startAngle = Math.PI / 2;
+    var endAngle = Math.PI;
+    var clockwise = true;
+
+
+    context.beginPath();
+    context.arc(x, y, radius, startAngle, endAngle, clockwise);
+
+    // Draw arrow at the end of the arc
+    context.lineTo(stopButton.rectangle[0] -2, y);
+    context.lineTo(stopButton.rectangle[0] - 2, stopButton.rectangle[1] - 2);
+    context.lineTo(stopButton.rectangle[0] - 2, y);
+    context.lineTo(x, y);
+    
     context.stroke();
     context.closePath();
+
 }
 
 // Initializes the stop button
@@ -994,12 +1019,14 @@ function getMousePos(e)
 function showVariable2Data()
 {
     document.getElementById("variable2element").style.visibility = 'visible';
+    document.getElementById("colorExplanation").style.visibility = 'visible';
 
 }
 
 function hideVariable2Data()
 {
     document.getElementById("variable2element").style.visibility = 'hidden';
+    document.getElementById("colorExplanation").style.visibility = 'hidden';
 
 }
 
