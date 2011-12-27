@@ -20,9 +20,9 @@ var dataIterator;
 
 // Config values
 var boxWidth = 50;
-var boxHeight = 6;
+var boxHeight = 3;
 var numBars = 10;
-var maxBoxes = 24;
+var maxBoxes = 44;
 var spaceBetweenBoxes = 2;
 var spaceBetweenBars = 2;  
 var timeStep = 0;

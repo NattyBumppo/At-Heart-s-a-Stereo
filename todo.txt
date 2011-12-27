@@ -1,2 +1,1 @@
--Add automatically-updating key on the right to explain bar color for 2nd variable
 -Add instructions on the bottom

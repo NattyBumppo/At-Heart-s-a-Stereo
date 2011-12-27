@@ -1,7 +1,12 @@
+import sys
 
 birthdates = [1990, 1963, 1970, 1967, 1988, 1990, 1964, 1935, 1937, 1965]
-names = ["George Michael", "G.O.B.", "Buster", "Michael", "Steve Holt", "Maeby", "Tobias", "George Sr.", "Lucille Bluth", "Lindsay"]
+names = ["gm", "gob", "Buster", "Michael", "SteveHolt", "Maeby", "Tobias", "GeorgeSr", "LucilleBluth", "Lindsay"]
 
+for i, name in enumerate(names):
+    print '%s =  "" * %s + (%s left)' % (name, birthdates[i] - 1930, 2008 - birthdates[i])
+
+sys.exit()
 
 people = []
 for i, birthdate in enumerate(birthdates):
