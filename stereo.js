@@ -50,6 +50,9 @@ var leftBarWidth = 54;
 var leftBarColor = "#333333";
 var leftBarHeight = 240 - centerHeight / 2
 
+var tickLength = 5;
+var tickColor = "#FFFFFF";
+
 var bottomBarOffset = 0;
 var bottomBarWidth = 640;
 var bottomBarColor = "#444444";
@@ -77,6 +80,7 @@ stopButton.scale = 0.4;
 timeButton.scale = 0.5;
 playButton.offset = leftBarWidth + 4;
 stopButton.offset = -2;
+//playButton.greyOutColor = "rgb(100, 100, 100)";
 
 timeButton.offset = -10;
 timeButton.verticalMargin = 4;
@@ -112,7 +116,15 @@ playButton.init = function()
 playButton.draw = function()
 {
     context.strokeStyle = buttonOutlineColor;
+
+    // If on the last step, don't draw any button here; it won't do anything anyway
+    if (dataIterator == (currentDataset.timeLabels.length - 1))
+    {
+        return;
+    }
+    // Otherwise draw the button
     context.fillStyle = buttonInsideColor;
+
     context.lineWidth = buttonOutlineThickness;
     context.lineCap = "round";
 
@@ -128,6 +140,7 @@ playButton.draw = function()
         context.fill();
         context.stroke();
         context.closePath();
+
     }
     else
     {
@@ -223,7 +236,6 @@ timeButton.draw = function()
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillText(this.value + "x", this.centerX, this.centerY);
-
 }
 
 // Make the time step decrease
@@ -603,6 +615,22 @@ function drawLeftBar()
 
     // Draw bottom half of bar
     context.fillRect(leftBarOffset, centerPos + centerHeight / 2, leftBarWidth, leftBarHeight);
+
+    // Draw tick marks for max and min
+    var maxPosX = leftBarOffset + leftBarWidth - tickLength;
+    var maxPosY = centerPos - centerHeight / 2 - (boxHeight + spaceBetweenBoxes) * maxBoxes;
+
+    var minPosX = leftBarOffset + leftBarWidth - tickLength;
+    var minPosY = centerPos + centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * maxBoxes;
+
+    context.strokeStyle = tickColor;
+    context.beginPath();
+    context.moveTo(maxPosX, maxPosY);
+    context.lineTo(maxPosX + tickLength, maxPosY);
+    context.moveTo(minPosX, minPosY);
+    context.lineTo(minPosX + tickLength, minPosY);
+    context.stroke();
+    context.closePath();
 }
 
 // Draw bottom bar
