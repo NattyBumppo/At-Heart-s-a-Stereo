@@ -526,8 +526,58 @@ function draw(numBars, barNo, maxLevel)
     }
 }
 
+// Gets the min of the dataset. I decided not to use Math.min because
+// it processes "" (no data) as 0.
+function getDatasetMin(dataset)
+{
+    var currentMin = dataset.columnDataPerSheet[0][0][0];
+
+    for (sheetNo in dataset.columnDataPerSheet)
+    {
+        for (colNo in dataset.columnDataPerSheet[sheetNo])
+        {
+            for (timeNo in dataset.columnDataPerSheet[sheetNo][colNo])
+            {
+                testMin = dataset.columnDataPerSheet[sheetNo][colNo][timeNo];
+                if ((testMin < currentMin) && (testMin != ""))
+                {
+                    currentMin = testMin;
+                }
+            }
+        }
+    }
+
+    return currentMin;
+}
+
+function getDatasetMax(dataset)
+{
+    // alert(Math.max.apply(Math, dataset.columnDataPerSheet));
+    var currentMax = dataset.columnDataPerSheet[0][0][0];
+
+    for (sheetNo in dataset.columnDataPerSheet)
+    {
+        for (colNo in dataset.columnDataPerSheet[sheetNo])
+        {
+            for (timeNo in dataset.columnDataPerSheet[sheetNo][colNo])
+            {
+                testMax = dataset.columnDataPerSheet[sheetNo][colNo][timeNo];
+                if ((testMax > currentMax) && (testMax != ""))
+                {
+                    currentMax = testMax;
+                }
+            }
+        }
+    }
+
+    return currentMax;
+}
+
 function drawBars(numBars, maxLevel)
 {
+    alert("Min: " + getDatasetMin(currentDataset));
+    alert("Max: " + getDatasetMax(currentDataset));
+
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d")
 

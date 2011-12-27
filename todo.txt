@@ -1,1 +1,3 @@
--Add instructions on the bottom
+-make min and max calculated dynamically
+-make center bar move depending on min and max
+-move config stuff into a separate object, in a separate .js file
