@@ -472,7 +472,11 @@ function updateVariableLabels()
 function process()
 {
     var barNo = 0;
-    var maxLevel = currentDataset.columnMaxValues[variable1Col];
+    var maxLevel = smartCeil(getDatasetMax(currentDataset, variable1Col), 5);
+    var minLevel = smartFloor(getDatasetMin(currentDataset, variable1Col), 5);
+
+
+    // alert(colNo + " " + maxLevel);
 
     draw(numBars, barNo, maxLevel);
 
@@ -528,21 +532,18 @@ function draw(numBars, barNo, maxLevel)
 
 // Gets the min of the dataset. I decided not to use Math.min because
 // it processes "" (no data) as 0.
-function getDatasetMin(dataset)
+function getDatasetMin(dataset, columnNo)
 {
     var currentMin = dataset.columnDataPerSheet[0][0][0];
 
     for (sheetNo in dataset.columnDataPerSheet)
-    {
-        for (colNo in dataset.columnDataPerSheet[sheetNo])
+    {   
+        for (timeNo in dataset.columnDataPerSheet[sheetNo][columnNo])
         {
-            for (timeNo in dataset.columnDataPerSheet[sheetNo][colNo])
+            testMin = dataset.columnDataPerSheet[sheetNo][columnNo][timeNo];
+            if ((testMin < currentMin) && (testMin != ""))
             {
-                testMin = dataset.columnDataPerSheet[sheetNo][colNo][timeNo];
-                if ((testMin < currentMin) && (testMin != ""))
-                {
-                    currentMin = testMin;
-                }
+                currentMin = testMin;
             }
         }
     }
@@ -550,22 +551,19 @@ function getDatasetMin(dataset)
     return currentMin;
 }
 
-function getDatasetMax(dataset)
+function getDatasetMax(dataset, columnNo)
 {
     // alert(Math.max.apply(Math, dataset.columnDataPerSheet));
     var currentMax = dataset.columnDataPerSheet[0][0][0];
 
     for (sheetNo in dataset.columnDataPerSheet)
     {
-        for (colNo in dataset.columnDataPerSheet[sheetNo])
+        for (timeNo in dataset.columnDataPerSheet[sheetNo][columnNo])
         {
-            for (timeNo in dataset.columnDataPerSheet[sheetNo][colNo])
+            testMax = dataset.columnDataPerSheet[sheetNo][columnNo][timeNo];
+            if ((testMax > currentMax) && (testMax != ""))
             {
-                testMax = dataset.columnDataPerSheet[sheetNo][colNo][timeNo];
-                if ((testMax > currentMax) && (testMax != ""))
-                {
-                    currentMax = testMax;
-                }
+                currentMax = testMax;
             }
         }
     }
@@ -573,10 +571,28 @@ function getDatasetMax(dataset)
     return currentMax;
 }
 
+// Rounds up a number to the next multiple of "multiple"
+function smartCeil(num, multiple)
+{
+    // alert(num + " rounds up to:");
+    num = Math.ceil(num / multiple) * multiple;
+    // alert(num);
+    return num;
+}
+
+// Rounds down a number to the next multiple of "multiple"
+function smartFloor(num, multiple)
+{
+    // alert(num + " rounds down to:");
+    num = Math.floor(num / multiple) * multiple;
+    // alert(num);
+
+    return num;
+
+}
+
 function drawBars(numBars, maxLevel)
 {
-    alert("Min: " + getDatasetMin(currentDataset));
-    alert("Max: " + getDatasetMax(currentDataset));
 
     var canvas = document.getElementById("stereo-canvas");
     var context = canvas.getContext("2d")
@@ -681,6 +697,8 @@ function drawLeftBar()
     context.lineTo(minPosX + tickLength, minPosY);
     context.stroke();
     context.closePath();
+
+    // Draw text for labels for min and max
 }
 
 // Draw bottom bar
@@ -1211,6 +1229,7 @@ function datasetChange()
     currentDataset = datasets[datasetNo];
     updateVariableLabels();
     dataIterator = 0;
+
     // alert("Dataset changed");
 }
 
