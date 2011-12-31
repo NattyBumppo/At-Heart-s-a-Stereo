@@ -882,24 +882,28 @@ function setupTooltips()
     // Reassign hoverRect to the new, current values
     hoverRects = new Array();
 
-    var maxLevel = currentDataset.columnMaxValues[variable1Col];
+    var maxLevel = smartCeil(getDatasetMax(currentDataset, variable1Col), 5);
+    var minLevel = smartFloor(getDatasetMin(currentDataset, variable1Col), 5);
 
     // Go to each bar and get a rectangle encompassing its content (including the center bar)
     var barNo;
     for (barNo = 0; barNo < numBars; barNo++)
     {
+
+
         
         var level = currentDataset.columnDataPerSheet[barNo][variable1Col][dataIterator];
 
         // Get how many boxes will make up the stack
         var boxesToLight = maxBoxes * (level / maxLevel);
 
+        //alert(barNo + " : " + boxesToLight);
+
         // In case boxesToLight was multiplied by a negative level, reset to positive
         if (boxesToLight < 0)
         {
             boxesToLight *= -1;
         }
-
 
         var bar = new Object();
         bar.left = centerLeftHorizontalMargin + (boxWidth + spaceBetweenBars) * barNo;
@@ -908,12 +912,13 @@ function setupTooltips()
             // Bar is from the center up
             bar.top = centerPos - (centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxesToLight);
             bar.bottom = centerPos + centerHeight / 2;
+            //alert("For barNo " + barNo + " bar.top is " + bar.top + " and " + boxesToLight + " boxes are lit.");
         }
         else
         {
             // Bar is from the center down
             bar.top = centerPos - centerHeight / 2;
-            bar.bottom = centerPos + centerHeight / 2 + spaceBetweenBoxes + (boxHeight + spaceBetweenBoxes) * boxesToLight;
+            bar.bottom = centerPos + centerHeight / 2 + (boxHeight + spaceBetweenBoxes) * boxesToLight;
         }
         bar.width = boxWidth;
         bar.height = bar.bottom - bar.top;
