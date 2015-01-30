@@ -960,7 +960,7 @@ function getBoxColor(boxNo, maxBoxes)
     var blue = 0;
 
     // Return a combined string of the hex versions of each color (padded to 2 chars each)
-    colorString = ( "0" + red.toString(16)).slice(-2) + ( "0" + green.toString(16)).slice(-2) + ( "0" + blue.toString(16)).slice(-2);
+    colorString = '#' + ( "0" + red.toString(16)).slice(-2) + ( "0" + green.toString(16)).slice(-2) + ( "0" + blue.toString(16)).slice(-2);
 
     return colorString;
 
@@ -1339,6 +1339,3 @@ function colorRectangleHTML(rectNo)
     
     return string;
 }
-
-
-
